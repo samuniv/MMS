@@ -1,0 +1,87 @@
+@page
+@model MeetingManagementSystem.Web.Pages.ActionItems.EditModel
+@{
+    ViewData["Title"] = "Edit Action Item";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Edit Action Item</h1>
+            <a asp-page="/ActionItems/Index" class="btn btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Action Items
+            </a>
+        </div>
+
+        @if (Model.ActionItem != null)
+        {
+            <div class="card bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title">@Model.ActionItem.AgendaItem.Meeting.Title</h2>
+                    <p class="text-sm text-base-content/70">
+                        <strong>Agenda Item:</strong> @Model.ActionItem.AgendaItem.Title
+                    </p>
+                    <p class="text-sm text-base-content/70">
+                        <strong>Assigned To:</strong> @Model.ActionItem.AssignedTo.FirstName @Model.ActionItem.AssignedTo.LastName
+                    </p>
+                </div>
+            </div>
+        }
+
+        <form method="post">
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Description</span>
+                        </label>
+                        <textarea asp-for="Description" 
+                                  class="textarea textarea-bordered h-32" 
+                                  placeholder="Enter action item description"></textarea>
+                        <span asp-validation-for="Description" class="text-error text-sm mt-1"></span>
+                    </div>
+
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Due Date</span>
+                        </label>
+                        <input type="date" asp-for="DueDate" class="input input-bordered" />
+                        <span asp-validation-for="DueDate" class="text-error text-sm mt-1"></span>
+                    </div>
+
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Status</span>
+                        </label>
+                        <select asp-for="Status" class="select select-bordered">
+                            <option value="@MeetingManagementSystem.Core.Enums.ActionItemStatus.Pending">Pending</option>
+                            <option value="@MeetingManagementSystem.Core.Enums.ActionItemStatus.InProgress">In Progress</option>
+                            <option value="@MeetingManagementSystem.Core.Enums.ActionItemStatus.Completed">Completed</option>
+                            <option value="@MeetingManagementSystem.Core.Enums.ActionItemStatus.Cancelled">Cancelled</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-error text-sm mt-1"></span>
+                    </div>
+
+                    <div class="card-actions justify-end mt-4">
+                        <a asp-page="/ActionItems/Index" class="btn btn-ghost">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Update Action Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

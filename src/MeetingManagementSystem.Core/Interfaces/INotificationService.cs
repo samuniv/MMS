@@ -8,6 +8,7 @@ public interface INotificationService
     Task SendMeetingReminderAsync(Meeting meeting, TimeSpan reminderTime);
     Task SendMeetingCancellationAsync(Meeting meeting, string reason);
     Task SendActionItemReminderAsync(ActionItem actionItem);
+    Task SendActionItemAssignmentAsync(ActionItem actionItem);
     Task SendMeetingUpdateNotificationAsync(Meeting meeting, string updateMessage);
     Task SendAttendanceConfirmationAsync(Meeting meeting, User participant, bool isAccepted);
 }

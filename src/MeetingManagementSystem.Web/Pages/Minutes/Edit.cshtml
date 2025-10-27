@@ -1,0 +1,76 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Minutes.EditModel
+@{
+    ViewData["Title"] = "Edit Meeting Minutes";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">Edit Meeting Minutes</h1>
+            <a asp-page="/Meetings/Details" asp-route-id="@Model.MeetingId" class="btn btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Meeting
+            </a>
+        </div>
+
+        @if (Model.Meeting != null)
+        {
+            <div class="card bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title">@Model.Meeting.Title</h2>
+                    <p class="text-sm text-base-content/70">
+                        @Model.Meeting.ScheduledDate.ToString("dddd, MMMM dd, yyyy") at @Model.Meeting.StartTime.ToString(@"hh\:mm")
+                    </p>
+                </div>
+            </div>
+        }
+
+        <form method="post">
+            <input type="hidden" asp-for="MeetingId" />
+            
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Meeting Minutes</span>
+                            <span class="label-text-alt">Last saved: @(Model.ExistingMinutes?.LastModified.ToString("g") ?? "Never")</span>
+                        </label>
+                        <textarea asp-for="Content" 
+                                  class="textarea textarea-bordered h-96" 
+                                  placeholder="Enter meeting minutes here...&#10;&#10;You can include:&#10;- Discussion points&#10;- Decisions made&#10;- Key takeaways&#10;- Next steps"></textarea>
+                        <span asp-validation-for="Content" class="text-error text-sm mt-1"></span>
+                        <label class="label">
+                            <span class="label-text-alt">Changes are saved when you click Save Minutes</span>
+                        </label>
+                    </div>
+
+                    <div class="card-actions justify-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Save Minutes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        @if (Model.ExistingMinutes != null)
+        {
+            <div class="alert alert-info mt-6">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Minutes were created by @Model.ExistingMinutes.CreatedBy.FirstName @Model.ExistingMinutes.CreatedBy.LastName on @Model.ExistingMinutes.CreatedAt.ToString("g")</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -40,6 +40,10 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IReminderSche
     MeetingManagementSystem.Infrastructure.Services.ReminderSchedulerService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IDocumentService,
     MeetingManagementSystem.Infrastructure.Services.DocumentService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingMinutesService,
+    MeetingManagementSystem.Infrastructure.Services.MeetingMinutesService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IActionItemService,
+    MeetingManagementSystem.Infrastructure.Services.ActionItemService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
@@ -55,6 +59,10 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingParti
     MeetingManagementSystem.Infrastructure.Repositories.MeetingParticipantRepository>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IDocumentRepository,
     MeetingManagementSystem.Infrastructure.Repositories.DocumentRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingMinutesRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.MeetingMinutesRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IActionItemRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.ActionItemRepository>();
 
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

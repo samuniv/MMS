@@ -95,6 +95,23 @@ public class NotificationService : INotificationService
         await SendEmailWithRetryAsync(actionItem.AssignedTo.Email, subject, body);
     }
 
+    public async Task SendActionItemAssignmentAsync(ActionItem actionItem)
+    {
+        _logger.LogInformation("Sending action item assignment notification for action item {ActionItemId}", actionItem.Id);
+
+        if (string.IsNullOrEmpty(actionItem.AssignedTo.Email))
+        {
+            _logger.LogWarning("Cannot send action item assignment - user {UserId} has no email", 
+                actionItem.AssignedToId);
+            return;
+        }
+
+        var subject = $"New Action Item Assigned: {actionItem.Description}";
+        var body = BuildActionItemAssignmentTemplate(actionItem);
+
+        await SendEmailWithRetryAsync(actionItem.AssignedTo.Email, subject, body);
+    }
+
     public async Task SendMeetingUpdateNotificationAsync(Meeting meeting, string updateMessage)
     {
         _logger.LogInformation("Sending meeting update notification for meeting {MeetingId}", meeting.Id);
@@ -262,6 +279,23 @@ public class NotificationService : INotificationService
         sb.AppendLine($"<p><strong>Status:</strong> {actionItem.Status}</p>");
         sb.AppendLine($"<p><strong>Meeting:</strong> {actionItem.AgendaItem.Meeting.Title}</p>");
         sb.AppendLine("<p>Please ensure this action item is completed by the due date.</p>");
+        sb.AppendLine("</body></html>");
+        
+        return sb.ToString();
+    }
+
+    private string BuildActionItemAssignmentTemplate(ActionItem actionItem)
+    {
+        var sb = new StringBuilder();
+        
+        sb.AppendLine("<html><body>");
+        sb.AppendLine("<h2>New Action Item Assigned</h2>");
+        sb.AppendLine($"<p>You have been assigned a new action item:</p>");
+        sb.AppendLine($"<p><strong>Description:</strong> {actionItem.Description}</p>");
+        sb.AppendLine($"<p><strong>Due Date:</strong> {actionItem.DueDate:dddd, MMMM dd, yyyy}</p>");
+        sb.AppendLine($"<p><strong>Meeting:</strong> {actionItem.AgendaItem.Meeting.Title}</p>");
+        sb.AppendLine($"<p><strong>Agenda Item:</strong> {actionItem.AgendaItem.Title}</p>");
+        sb.AppendLine("<p>Please review and complete this action item by the due date.</p>");
         sb.AppendLine("</body></html>");
         
         return sb.ToString();
