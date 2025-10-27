@@ -19,6 +19,10 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Configure Email Settings
+builder.Services.Configure<MeetingManagementSystem.Core.DTOs.EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
 // Register application services
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IRoleManagementService, 
     MeetingManagementSystem.Infrastructure.Services.RoleManagementService>();
@@ -26,6 +30,13 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingServi
     MeetingManagementSystem.Infrastructure.Services.MeetingService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IRoomService,
     MeetingManagementSystem.Infrastructure.Services.RoomService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.INotificationService,
+    MeetingManagementSystem.Infrastructure.Services.NotificationService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IReminderSchedulerService,
+    MeetingManagementSystem.Infrastructure.Services.ReminderSchedulerService>();
+
+// Register background services
+builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
 
 // Register repositories
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingRepository,

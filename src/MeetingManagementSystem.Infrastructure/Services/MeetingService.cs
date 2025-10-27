@@ -12,17 +12,23 @@ public class MeetingService : IMeetingService
     private readonly IMeetingRepository _meetingRepository;
     private readonly IMeetingParticipantRepository _participantRepository;
     private readonly IMeetingRoomRepository _roomRepository;
+    private readonly IReminderSchedulerService _reminderScheduler;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<MeetingService> _logger;
 
     public MeetingService(
         IMeetingRepository meetingRepository,
         IMeetingParticipantRepository participantRepository,
         IMeetingRoomRepository roomRepository,
+        IReminderSchedulerService reminderScheduler,
+        INotificationService notificationService,
         ILogger<MeetingService> logger)
     {
         _meetingRepository = meetingRepository;
         _participantRepository = participantRepository;
         _roomRepository = roomRepository;
+        _reminderScheduler = reminderScheduler;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -70,6 +76,17 @@ public class MeetingService : IMeetingService
             });
 
             await _participantRepository.AddRangeAsync(participants);
+        }
+
+        // Schedule reminders for the meeting
+        await _reminderScheduler.ScheduleMeetingRemindersAsync(createdMeeting.Id);
+
+        // Send invitations to participants
+        var meetingWithDetails = await _meetingRepository.GetMeetingWithDetailsAsync(createdMeeting.Id);
+        if (meetingWithDetails != null && meetingWithDetails.Participants.Any())
+        {
+            var participantUsers = meetingWithDetails.Participants.Select(p => p.User);
+            await _notificationService.SendMeetingInvitationAsync(meetingWithDetails, participantUsers);
         }
 
         _logger.LogInformation("Meeting created successfully with ID: {MeetingId}", createdMeeting.Id);
@@ -176,7 +193,7 @@ public class MeetingService : IMeetingService
     {
         _logger.LogInformation("Cancelling meeting: {MeetingId}, Reason: {Reason}", id, reason);
 
-        var meeting = await _meetingRepository.GetByIdAsync(id);
+        var meeting = await _meetingRepository.GetMeetingWithDetailsAsync(id);
         if (meeting == null)
         {
             throw new MeetingNotFoundException(id);
@@ -186,6 +203,12 @@ public class MeetingService : IMeetingService
         meeting.UpdatedAt = DateTime.UtcNow;
 
         await _meetingRepository.UpdateAsync(meeting);
+
+        // Cancel scheduled reminders
+        await _reminderScheduler.CancelMeetingRemindersAsync(id);
+
+        // Send cancellation notifications
+        await _notificationService.SendMeetingCancellationAsync(meeting, reason);
 
         _logger.LogInformation("Meeting cancelled successfully: {MeetingId}", id);
         return true;
@@ -273,6 +296,14 @@ public class MeetingService : IMeetingService
         participant.ResponseDate = DateTime.UtcNow;
 
         await _participantRepository.UpdateAsync(participant);
+
+        // Send attendance confirmation to organizer
+        var meeting = await _meetingRepository.GetMeetingWithDetailsAsync(meetingId);
+        if (meeting != null && participant.User != null)
+        {
+            var isAccepted = status == AttendanceStatus.Accepted;
+            await _notificationService.SendAttendanceConfirmationAsync(meeting, participant.User, isAccepted);
+        }
 
         _logger.LogInformation("Participant status updated successfully for meeting {MeetingId}", meetingId);
         return true;

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<MeetingDocument> MeetingDocuments { get; set; }
     public DbSet<MeetingMinutes> MeetingMinutes { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<ScheduledReminder> ScheduledReminders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -199,6 +200,29 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             
             entity.HasIndex(e => e.UserId)
                 .HasDatabaseName("IX_AuditLog_User");
+        });
+
+        // Configure ScheduledReminder entity
+        modelBuilder.Entity<ScheduledReminder>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(500);
+            
+            entity.HasOne(e => e.Meeting)
+                .WithMany()
+                .HasForeignKey(e => e.MeetingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ActionItem)
+                .WithMany()
+                .HasForeignKey(e => e.ActionItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.ScheduledTime, e.IsSent })
+                .HasDatabaseName("IX_ScheduledReminder_Processing");
+            
+            entity.HasIndex(e => e.MeetingId)
+                .HasDatabaseName("IX_ScheduledReminder_Meeting");
         });
     }
 }

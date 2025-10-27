@@ -14,6 +14,8 @@ public class MeetingServiceTests
     private readonly Mock<IMeetingRepository> _meetingRepositoryMock;
     private readonly Mock<IMeetingParticipantRepository> _participantRepositoryMock;
     private readonly Mock<IMeetingRoomRepository> _roomRepositoryMock;
+    private readonly Mock<IReminderSchedulerService> _reminderSchedulerMock;
+    private readonly Mock<INotificationService> _notificationServiceMock;
     private readonly Mock<ILogger<MeetingService>> _loggerMock;
     private readonly MeetingService _meetingService;
 
@@ -22,12 +24,16 @@ public class MeetingServiceTests
         _meetingRepositoryMock = new Mock<IMeetingRepository>();
         _participantRepositoryMock = new Mock<IMeetingParticipantRepository>();
         _roomRepositoryMock = new Mock<IMeetingRoomRepository>();
+        _reminderSchedulerMock = new Mock<IReminderSchedulerService>();
+        _notificationServiceMock = new Mock<INotificationService>();
         _loggerMock = new Mock<ILogger<MeetingService>>();
 
         _meetingService = new MeetingService(
             _meetingRepositoryMock.Object,
             _participantRepositoryMock.Object,
             _roomRepositoryMock.Object,
+            _reminderSchedulerMock.Object,
+            _notificationServiceMock.Object,
             _loggerMock.Object
         );
     }
@@ -55,8 +61,17 @@ public class MeetingServiceTests
         _meetingRepositoryMock.Setup(r => r.AddAsync(It.IsAny<Meeting>()))
             .ReturnsAsync((Meeting m) => { m.Id = 1; return m; });
 
+        _meetingRepositoryMock.Setup(r => r.GetMeetingWithDetailsAsync(It.IsAny<int>()))
+            .ReturnsAsync((Meeting?)null);
+
         _participantRepositoryMock.Setup(r => r.AddRangeAsync(It.IsAny<IEnumerable<MeetingParticipant>>()))
             .ReturnsAsync((IEnumerable<MeetingParticipant> p) => p);
+
+        _reminderSchedulerMock.Setup(r => r.ScheduleMeetingRemindersAsync(It.IsAny<int>()))
+            .Returns(Task.CompletedTask);
+
+        _notificationServiceMock.Setup(n => n.SendMeetingInvitationAsync(It.IsAny<Meeting>(), It.IsAny<IEnumerable<User>>()))
+            .Returns(Task.CompletedTask);
 
         // Act
         var result = await _meetingService.CreateMeetingAsync(dto);
@@ -121,12 +136,24 @@ public class MeetingServiceTests
     {
         // Arrange
         var meetingId = 1;
-        var meeting = new Meeting { Id = meetingId, Status = MeetingStatus.Scheduled };
+        var meeting = new Meeting 
+        { 
+            Id = meetingId, 
+            Status = MeetingStatus.Scheduled,
+            Organizer = new User { Id = 1, Email = "test@example.com" },
+            Participants = new List<MeetingParticipant>()
+        };
 
-        _meetingRepositoryMock.Setup(r => r.GetByIdAsync(meetingId))
+        _meetingRepositoryMock.Setup(r => r.GetMeetingWithDetailsAsync(meetingId))
             .ReturnsAsync(meeting);
 
         _meetingRepositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Meeting>()))
+            .Returns(Task.CompletedTask);
+
+        _reminderSchedulerMock.Setup(r => r.CancelMeetingRemindersAsync(meetingId))
+            .Returns(Task.CompletedTask);
+
+        _notificationServiceMock.Setup(n => n.SendMeetingCancellationAsync(It.IsAny<Meeting>(), It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -174,13 +201,28 @@ public class MeetingServiceTests
         { 
             MeetingId = meetingId, 
             UserId = userId, 
-            AttendanceStatus = AttendanceStatus.Pending 
+            AttendanceStatus = AttendanceStatus.Pending,
+            User = new User { Id = userId, Email = "participant@example.com", FirstName = "Test", LastName = "User" }
+        };
+
+        var meeting = new Meeting
+        {
+            Id = meetingId,
+            Title = "Test Meeting",
+            Organizer = new User { Id = 1, Email = "organizer@example.com" },
+            Participants = new List<MeetingParticipant>()
         };
 
         _participantRepositoryMock.Setup(r => r.GetParticipantAsync(meetingId, userId))
             .ReturnsAsync(participant);
 
         _participantRepositoryMock.Setup(r => r.UpdateAsync(It.IsAny<MeetingParticipant>()))
+            .Returns(Task.CompletedTask);
+
+        _meetingRepositoryMock.Setup(r => r.GetMeetingWithDetailsAsync(meetingId))
+            .ReturnsAsync(meeting);
+
+        _notificationServiceMock.Setup(n => n.SendAttendanceConfirmationAsync(It.IsAny<Meeting>(), It.IsAny<User>(), It.IsAny<bool>()))
             .Returns(Task.CompletedTask);
 
         // Act
