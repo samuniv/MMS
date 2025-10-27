@@ -4,18 +4,41 @@
     ViewData["Title"] = "User Management";
 }
 
-<div class="mb-6">
-    <h1 class="text-3xl font-bold">User Management</h1>
-    <p class="text-base-content/70">Manage user accounts and roles</p>
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">User Management</h1>
+        <p class="text-base-content/70">Manage user accounts and roles</p>
+    </div>
+    <a asp-page="/Account/Register" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i>
+        Add User
+    </a>
 </div>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success mb-4">
-        <i class="fas fa-check-circle"></i>
-        <span>@TempData["SuccessMessage"]</span>
+<!-- Search and Filter -->
+<div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-control">
+                <input type="text" name="search" value="@Model.SearchTerm" placeholder="Search users..." class="input input-bordered" />
+            </div>
+            <div class="form-control">
+                <select name="status" class="select select-bordered">
+                    <option value="">All Status</option>
+                    <option value="active" selected="@(Model.StatusFilter == "active")">Active</option>
+                    <option value="inactive" selected="@(Model.StatusFilter == "inactive")">Inactive</option>
+                </select>
+            </div>
+            <div class="form-control flex flex-row gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+                <a asp-page="Index" class="btn btn-ghost">Reset</a>
+            </div>
+        </form>
     </div>
-}
+</div>
 
 <div class="card bg-base-100 shadow-xl">
     <div class="card-body">

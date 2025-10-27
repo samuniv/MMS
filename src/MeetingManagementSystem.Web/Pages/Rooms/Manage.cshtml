@@ -1,0 +1,214 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Rooms.ManageModel
+@{
+    ViewData["Title"] = "Manage Rooms";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Manage Meeting Rooms</h1>
+        <p class="text-base-content/70">Add, edit, and manage meeting rooms</p>
+    </div>
+    <button class="btn btn-primary" onclick="add_room_modal.showModal()">
+        <i class="fas fa-plus"></i>
+        Add Room
+    </button>
+</div>
+
+<!-- Rooms Table -->
+@if (Model.Rooms.Any())
+{
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Equipment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in Model.Rooms)
+                        {
+                            <tr>
+                                <td class="font-semibold">@room.Name</td>
+                                <td>@room.Location</td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-users text-primary"></i>
+                                        @room.Capacity
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(room.Equipment))
+                                    {
+                                        <span class="text-sm">@room.Equipment</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-base-content/50">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (room.IsActive)
+                                    {
+                                        <span class="badge badge-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-error">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <button class="btn btn-sm btn-ghost" onclick="editRoom(@room.Id, '@room.Name', '@room.Location', @room.Capacity, '@room.Equipment', @room.IsActive.ToString().ToLower())">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form method="post" asp-page-handler="ToggleStatus" asp-route-id="@room.Id" class="inline">
+                                            <button type="submit" class="btn btn-sm btn-ghost">
+                                                @if (room.IsActive)
+                                                {
+                                                    <i class="fas fa-ban text-error"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <div class="text-center py-12">
+                <div class="text-6xl text-base-content/30 mb-4">
+                    <i class="fas fa-door-closed"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">No rooms configured</h3>
+                <p class="text-base-content/70 mb-6">Add your first meeting room to get started.</p>
+                <button class="btn btn-primary" onclick="add_room_modal.showModal()">
+                    <i class="fas fa-plus"></i>
+                    Add Room
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Add Room Modal -->
+<dialog id="add_room_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Add Meeting Room</h3>
+        <form method="post" asp-page-handler="Add">
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Room Name <span class="text-error">*</span></span>
+                </label>
+                <input type="text" name="name" required class="input input-bordered" placeholder="e.g., Conference Room A" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Location <span class="text-error">*</span></span>
+                </label>
+                <input type="text" name="location" required class="input input-bordered" placeholder="e.g., 2nd Floor, East Wing" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Capacity <span class="text-error">*</span></span>
+                </label>
+                <input type="number" name="capacity" required min="1" class="input input-bordered" placeholder="e.g., 20" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Equipment</span>
+                </label>
+                <textarea name="equipment" class="textarea textarea-bordered" placeholder="e.g., Projector, Whiteboard, Video Conference"></textarea>
+            </div>
+            
+            <div class="modal-action">
+                <button type="submit" class="btn btn-primary">Add Room</button>
+                <button type="button" class="btn" onclick="add_room_modal.close()">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Edit Room Modal -->
+<dialog id="edit_room_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Edit Meeting Room</h3>
+        <form method="post" asp-page-handler="Edit">
+            <input type="hidden" name="id" id="edit_room_id" />
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Room Name <span class="text-error">*</span></span>
+                </label>
+                <input type="text" name="name" id="edit_room_name" required class="input input-bordered" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Location <span class="text-error">*</span></span>
+                </label>
+                <input type="text" name="location" id="edit_room_location" required class="input input-bordered" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Capacity <span class="text-error">*</span></span>
+                </label>
+                <input type="number" name="capacity" id="edit_room_capacity" required min="1" class="input input-bordered" />
+            </div>
+            
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text">Equipment</span>
+                </label>
+                <textarea name="equipment" id="edit_room_equipment" class="textarea textarea-bordered"></textarea>
+            </div>
+            
+            <div class="modal-action">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn" onclick="edit_room_modal.close()">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+@section Scripts {
+    <script>
+        function editRoom(id, name, location, capacity, equipment, isActive) {
+            document.getElementById('edit_room_id').value = id;
+            document.getElementById('edit_room_name').value = name;
+            document.getElementById('edit_room_location').value = location;
+            document.getElementById('edit_room_capacity').value = capacity;
+            document.getElementById('edit_room_equipment').value = equipment;
+            edit_room_modal.showModal();
+        }
+    </script>
+}

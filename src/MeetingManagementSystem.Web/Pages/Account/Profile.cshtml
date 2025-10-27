@@ -1,0 +1,188 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="mb-6">
+    <h1 class="text-3xl font-bold">My Profile</h1>
+    <p class="text-base-content/70">View and update your profile information</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Profile Info -->
+    <div class="lg:col-span-2">
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <h2 class="card-title mb-4">
+                    <i class="fas fa-user"></i>
+                    Profile Information
+                </h2>
+                
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-error mb-4" role="alert"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label asp-for="Input.FirstName" class="label">
+                                <span class="label-text font-semibold">First Name</span>
+                            </label>
+                            <input asp-for="Input.FirstName" class="input input-bordered" />
+                            <span asp-validation-for="Input.FirstName" class="label-text-alt text-error"></span>
+                        </div>
+                        
+                        <div class="form-control">
+                            <label asp-for="Input.LastName" class="label">
+                                <span class="label-text font-semibold">Last Name</span>
+                            </label>
+                            <input asp-for="Input.LastName" class="input input-bordered" />
+                            <span asp-validation-for="Input.LastName" class="label-text-alt text-error"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-control mb-4">
+                        <label asp-for="Input.Email" class="label">
+                            <span class="label-text font-semibold">Email</span>
+                        </label>
+                        <input asp-for="Input.Email" class="input input-bordered" readonly />
+                        <label class="label">
+                            <span class="label-text-alt">Email cannot be changed</span>
+                        </label>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label asp-for="Input.Department" class="label">
+                                <span class="label-text font-semibold">Department</span>
+                            </label>
+                            <input asp-for="Input.Department" class="input input-bordered" />
+                            <span asp-validation-for="Input.Department" class="label-text-alt text-error"></span>
+                        </div>
+                        
+                        <div class="form-control">
+                            <label asp-for="Input.Position" class="label">
+                                <span class="label-text font-semibold">Position</span>
+                            </label>
+                            <input asp-for="Input.Position" class="input input-bordered" />
+                            <span asp-validation-for="Input.Position" class="label-text-alt text-error"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-control mb-6">
+                        <label asp-for="Input.OfficeLocation" class="label">
+                            <span class="label-text font-semibold">Office Location</span>
+                        </label>
+                        <input asp-for="Input.OfficeLocation" class="input input-bordered" />
+                        <span asp-validation-for="Input.OfficeLocation" class="label-text-alt text-error"></span>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                        <a asp-page="/Index" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Change Password -->
+        <div class="card bg-base-100 shadow mt-6">
+            <div class="card-body">
+                <h2 class="card-title mb-4">
+                    <i class="fas fa-lock"></i>
+                    Change Password
+                </h2>
+                
+                <form method="post" asp-page-handler="ChangePassword">
+                    <div class="form-control mb-4">
+                        <label asp-for="PasswordInput.CurrentPassword" class="label">
+                            <span class="label-text font-semibold">Current Password</span>
+                        </label>
+                        <input asp-for="PasswordInput.CurrentPassword" type="password" class="input input-bordered" />
+                        <span asp-validation-for="PasswordInput.CurrentPassword" class="label-text-alt text-error"></span>
+                    </div>
+                    
+                    <div class="form-control mb-4">
+                        <label asp-for="PasswordInput.NewPassword" class="label">
+                            <span class="label-text font-semibold">New Password</span>
+                        </label>
+                        <input asp-for="PasswordInput.NewPassword" type="password" class="input input-bordered" />
+                        <span asp-validation-for="PasswordInput.NewPassword" class="label-text-alt text-error"></span>
+                    </div>
+                    
+                    <div class="form-control mb-6">
+                        <label asp-for="PasswordInput.ConfirmPassword" class="label">
+                            <span class="label-text font-semibold">Confirm New Password</span>
+                        </label>
+                        <input asp-for="PasswordInput.ConfirmPassword" type="password" class="input input-bordered" />
+                        <span asp-validation-for="PasswordInput.ConfirmPassword" class="label-text-alt text-error"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <div class="flex flex-col items-center">
+                    <div class="avatar placeholder mb-4">
+                        <div class="bg-primary text-primary-content rounded-full w-24">
+                            <span class="text-4xl">@Model.Input.FirstName?.Substring(0, 1)@Model.Input.LastName?.Substring(0, 1)</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold">@Model.Input.FirstName @Model.Input.LastName</h3>
+                    <p class="text-base-content/70">@Model.Input.Position</p>
+                    <p class="text-sm text-base-content/70">@Model.Input.Department</p>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-envelope text-primary"></i>
+                        <span class="break-all">@Model.Input.Email</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Input.OfficeLocation))
+                    {
+                        <div class="flex items-center gap-2 text-sm">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <span>@Model.Input.OfficeLocation</span>
+                        </div>
+                    }
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-calendar text-primary"></i>
+                        <span>Joined @Model.CreatedAt.ToString("MMM dd, yyyy")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-base-100 shadow mt-6">
+            <div class="card-body">
+                <h3 class="card-title text-lg mb-4">
+                    <i class="fas fa-shield-alt"></i>
+                    Your Roles
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var role in Model.UserRoles)
+                    {
+                        <span class="badge badge-primary">@role</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

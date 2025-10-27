@@ -1,0 +1,104 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Meetings.MyMeetingsModel
+@{
+    ViewData["Title"] = "My Meetings";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">My Meetings</h1>
+        <p class="text-base-content/70">Meetings you're organizing or participating in</p>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs tabs-boxed mb-6">
+    <a class="tab @(Model.ActiveTab == "upcoming" ? "tab-active" : "")" asp-page="MyMeetings" asp-route-tab="upcoming">
+        Upcoming
+    </a>
+    <a class="tab @(Model.ActiveTab == "past" ? "tab-active" : "")" asp-page="MyMeetings" asp-route-tab="past">
+        Past
+    </a>
+    <a class="tab @(Model.ActiveTab == "organized" ? "tab-active" : "")" asp-page="MyMeetings" asp-route-tab="organized">
+        Organized by Me
+    </a>
+</div>
+
+<!-- Meetings List -->
+@if (Model.Meetings.Any())
+{
+    <div class="grid grid-cols-1 gap-4">
+        @foreach (var meeting in Model.Meetings)
+        {
+            <div class="card bg-base-100 shadow hover:shadow-lg transition-shadow">
+                <div class="card-body">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="card-title text-xl">
+                                <a asp-page="Details" asp-route-id="@meeting.Id" class="link link-hover">
+                                    @meeting.Title
+                                </a>
+                            </h3>
+                            <p class="text-base-content/70 mt-2">@meeting.Description</p>
+                            
+                            <div class="flex flex-wrap gap-4 mt-4 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar text-primary"></i>
+                                    <span>@meeting.ScheduledDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-primary"></i>
+                                    <span>@meeting.StartTime.ToString(@"hh\:mm") - @meeting.EndTime.ToString(@"hh\:mm")</span>
+                                </div>
+                                @if (meeting.MeetingRoom != null)
+                                {
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-door-open text-primary"></i>
+                                        <span>@meeting.MeetingRoom.Name</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="badge @GetStatusBadgeClass(meeting.Status)">
+                                @meeting.Status
+                            </div>
+                            <a asp-page="Details" asp-route-id="@meeting.Id" class="btn btn-sm btn-primary mt-2">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <div class="text-center py-12">
+                <div class="text-6xl text-base-content/30 mb-4">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">No meetings found</h3>
+                <p class="text-base-content/70">You don't have any @Model.ActiveTab meetings.</p>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    private string GetStatusBadgeClass(MeetingStatus status)
+    {
+        return status switch
+        {
+            MeetingStatus.Scheduled => "badge-info",
+            MeetingStatus.InProgress => "badge-warning",
+            MeetingStatus.Completed => "badge-success",
+            MeetingStatus.Cancelled => "badge-error",
+            _ => "badge-ghost"
+        };
+    }
+}

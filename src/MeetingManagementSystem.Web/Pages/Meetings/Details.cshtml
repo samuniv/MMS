@@ -1,0 +1,296 @@
+@page "{id:int}"
+@model MeetingManagementSystem.Web.Pages.Meetings.DetailsModel
+@{
+    ViewData["Title"] = Model.Meeting?.Title ?? "Meeting Details";
+}
+
+@if (Model.Meeting == null)
+{
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Meeting not found</span>
+    </div>
+    return;
+}
+
+<div class="mb-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold">@Model.Meeting.Title</h1>
+            <div class="flex items-center gap-4 mt-2 text-base-content/70">
+                <span><i class="fas fa-user"></i> @Model.Meeting.Organizer.FirstName @Model.Meeting.Organizer.LastName</span>
+                <span class="badge @GetStatusBadgeClass(Model.Meeting.Status)">@Model.Meeting.Status</span>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            @if (Model.CanEdit)
+            {
+                <a asp-page="Edit" asp-route-id="@Model.Meeting.Id" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </a>
+            }
+            <a asp-page="Index" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Meeting Details -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Meeting Details
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-semibold">Date</span>
+                        </label>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-calendar text-primary"></i>
+                            @Model.Meeting.ScheduledDate.ToString("dddd, MMMM dd, yyyy")
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-semibold">Time</span>
+                        </label>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-clock text-primary"></i>
+                            @Model.Meeting.StartTime.ToString(@"hh\:mm") - @Model.Meeting.EndTime.ToString(@"hh\:mm")
+                        </p>
+                    </div>
+                    
+                    @if (Model.Meeting.MeetingRoom != null)
+                    {
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Location</span>
+                            </label>
+                            <p class="flex items-center gap-2">
+                                <i class="fas fa-door-open text-primary"></i>
+                                @Model.Meeting.MeetingRoom.Name - @Model.Meeting.MeetingRoom.Location
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Capacity</span>
+                            </label>
+                            <p class="flex items-center gap-2">
+                                <i class="fas fa-users text-primary"></i>
+                                @Model.Meeting.MeetingRoom.Capacity people
+                            </p>
+                        </div>
+                    }
+                </div>
+                
+                @if (!string.IsNullOrWhiteSpace(Model.Meeting.Description))
+                {
+                    <div class="mt-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Description</span>
+                        </label>
+                        <p class="text-base-content/80">@Model.Meeting.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Agenda Items -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <h2 class="card-title">
+                        <i class="fas fa-list"></i>
+                        Agenda
+                    </h2>
+                    @if (Model.CanEdit)
+                    {
+                        <button class="btn btn-sm btn-primary" onclick="agenda_modal.showModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Item
+                        </button>
+                    }
+                </div>
+                
+                @if (Model.Meeting.AgendaItems.Any())
+                {
+                    <div class="space-y-2 mt-4">
+                        @foreach (var item in Model.Meeting.AgendaItems.OrderBy(a => a.OrderIndex))
+                        {
+                            <div class="border border-base-300 rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold">@item.OrderIndex. @item.Title</h4>
+                                        <p class="text-sm text-base-content/70 mt-1">@item.Description</p>
+                                        <div class="flex gap-4 mt-2 text-sm">
+                                            <span><i class="fas fa-clock"></i> @item.AllocatedMinutes min</span>
+                                            @if (item.Presenter != null)
+                                            {
+                                                <span><i class="fas fa-user"></i> @item.Presenter.FirstName @item.Presenter.LastName</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8 text-base-content/60">
+                        <i class="fas fa-list-ul text-4xl mb-2"></i>
+                        <p>No agenda items added yet</p>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Documents -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <div class="flex justify-between items-center">
+                    <h2 class="card-title">
+                        <i class="fas fa-file-alt"></i>
+                        Documents
+                    </h2>
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-page="/Documents/Upload" asp-route-meetingId="@Model.Meeting.Id" class="btn btn-sm btn-primary">
+                            <i class="fas fa-upload"></i>
+                            Upload
+                        </a>
+                    }
+                </div>
+                
+                @if (Model.Meeting.Documents.Any())
+                {
+                    <div class="space-y-2 mt-4">
+                        @foreach (var doc in Model.Meeting.Documents.OrderByDescending(d => d.UploadedAt))
+                        {
+                            <div class="flex items-center justify-between border border-base-300 rounded-lg p-3">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-file text-2xl text-primary"></i>
+                                    <div>
+                                        <p class="font-medium">@doc.FileName</p>
+                                        <p class="text-sm text-base-content/70">
+                                            @(doc.FileSize / 1024.0 / 1024.0).ToString("F2") MB • 
+                                            Uploaded @doc.UploadedAt.ToString("MMM dd, yyyy")
+                                        </p>
+                                    </div>
+                                </div>
+                                <a asp-page="/Documents/Download" asp-route-id="@doc.Id" class="btn btn-sm btn-ghost">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8 text-base-content/60">
+                        <i class="fas fa-file-alt text-4xl mb-2"></i>
+                        <p>No documents uploaded yet</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="lg:col-span-1 space-y-6">
+        <!-- Participants -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body">
+                <h3 class="card-title text-lg">
+                    <i class="fas fa-users"></i>
+                    Participants (@Model.Meeting.Participants.Count)
+                </h3>
+                
+                @if (Model.Meeting.Participants.Any())
+                {
+                    <div class="space-y-2 mt-4">
+                        @foreach (var participant in Model.Meeting.Participants.OrderBy(p => p.User.FirstName))
+                        {
+                            <div class="flex items-center gap-3">
+                                <div class="avatar placeholder">
+                                    <div class="bg-primary text-primary-content rounded-full w-10">
+                                        <span class="text-sm">@participant.User.FirstName.Substring(0, 1)@participant.User.LastName.Substring(0, 1)</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-sm">@participant.User.FirstName @participant.User.LastName</p>
+                                    <p class="text-xs text-base-content/70">@participant.User.Position</p>
+                                </div>
+                                <div class="badge badge-sm @GetAttendanceBadgeClass(participant.AttendanceStatus)">
+                                    @participant.AttendanceStatus
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-base-content/70 text-sm">No participants added</p>
+                }
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        @if (Model.CanEdit && Model.Meeting.Status == MeetingStatus.Scheduled)
+        {
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h3 class="card-title text-lg">
+                        <i class="fas fa-cog"></i>
+                        Actions
+                    </h3>
+                    
+                    <div class="space-y-2 mt-4">
+                        <form method="post" asp-page-handler="Cancel">
+                            <button type="submit" class="btn btn-error btn-block btn-sm" onclick="return confirm('Are you sure you want to cancel this meeting?')">
+                                <i class="fas fa-times"></i>
+                                Cancel Meeting
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(MeetingStatus status)
+    {
+        return status switch
+        {
+            MeetingStatus.Scheduled => "badge-info",
+            MeetingStatus.InProgress => "badge-warning",
+            MeetingStatus.Completed => "badge-success",
+            MeetingStatus.Cancelled => "badge-error",
+            _ => "badge-ghost"
+        };
+    }
+    
+    private string GetAttendanceBadgeClass(AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Accepted => "badge-success",
+            AttendanceStatus.Declined => "badge-error",
+            AttendanceStatus.Tentative => "badge-warning",
+            _ => "badge-ghost"
+        };
+    }
+}

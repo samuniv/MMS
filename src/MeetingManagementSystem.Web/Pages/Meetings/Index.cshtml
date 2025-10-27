@@ -1,0 +1,174 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Meetings.IndexModel
+@{
+    ViewData["Title"] = "Meetings";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold">Meetings</h1>
+        <p class="text-base-content/70">View and manage all meetings</p>
+    </div>
+    @if (User.IsInRole("Administrator") || User.IsInRole("Government Official"))
+    {
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Schedule Meeting
+        </a>
+    }
+</div>
+
+<!-- Filters -->
+<div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Search</span>
+                </label>
+                <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search meetings..." class="input input-bordered" />
+            </div>
+            
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Status</span>
+                </label>
+                <select name="status" class="select select-bordered">
+                    <option value="">All Statuses</option>
+                    <option value="Scheduled" selected="@(Model.StatusFilter == "Scheduled")">Scheduled</option>
+                    <option value="InProgress" selected="@(Model.StatusFilter == "InProgress")">In Progress</option>
+                    <option value="Completed" selected="@(Model.StatusFilter == "Completed")">Completed</option>
+                    <option value="Cancelled" selected="@(Model.StatusFilter == "Cancelled")">Cancelled</option>
+                </select>
+            </div>
+            
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">From Date</span>
+                </label>
+                <input type="date" name="fromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="input input-bordered" />
+            </div>
+            
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">To Date</span>
+                </label>
+                <input type="date" name="toDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="input input-bordered" />
+            </div>
+            
+            <div class="form-control md:col-span-4 flex flex-row gap-2 items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+                <a asp-page="Index" class="btn btn-ghost">
+                    <i class="fas fa-redo"></i>
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Meetings List -->
+@if (Model.Meetings.Any())
+{
+    <div class="grid grid-cols-1 gap-4">
+        @foreach (var meeting in Model.Meetings)
+        {
+            <div class="card bg-base-100 shadow hover:shadow-lg transition-shadow">
+                <div class="card-body">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="card-title text-xl">
+                                <a asp-page="Details" asp-route-id="@meeting.Id" class="link link-hover">
+                                    @meeting.Title
+                                </a>
+                            </h3>
+                            <p class="text-base-content/70 mt-2">@meeting.Description</p>
+                            
+                            <div class="flex flex-wrap gap-4 mt-4 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-calendar text-primary"></i>
+                                    <span>@meeting.ScheduledDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-primary"></i>
+                                    <span>@meeting.StartTime.ToString(@"hh\:mm") - @meeting.EndTime.ToString(@"hh\:mm")</span>
+                                </div>
+                                @if (meeting.MeetingRoom != null)
+                                {
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-door-open text-primary"></i>
+                                        <span>@meeting.MeetingRoom.Name</span>
+                                    </div>
+                                }
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-user text-primary"></i>
+                                    <span>@meeting.Organizer.FirstName @meeting.Organizer.LastName</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span>@meeting.Participants.Count participants</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="badge @GetStatusBadgeClass(meeting.Status)">
+                                @meeting.Status
+                            </div>
+                            
+                            <div class="flex gap-2 mt-2">
+                                <a asp-page="Details" asp-route-id="@meeting.Id" class="btn btn-sm btn-ghost">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @if (User.IsInRole("Administrator") || meeting.OrganizerId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                {
+                                    <a asp-page="Edit" asp-route-id="@meeting.Id" class="btn btn-sm btn-ghost">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <div class="text-center py-12">
+                <div class="text-6xl text-base-content/30 mb-4">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">No meetings found</h3>
+                <p class="text-base-content/70 mb-6">There are no meetings matching your criteria.</p>
+                @if (User.IsInRole("Administrator") || User.IsInRole("Government Official"))
+                {
+                    <a asp-page="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Schedule Meeting
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    private string GetStatusBadgeClass(MeetingStatus status)
+    {
+        return status switch
+        {
+            MeetingStatus.Scheduled => "badge-info",
+            MeetingStatus.InProgress => "badge-warning",
+            MeetingStatus.Completed => "badge-success",
+            MeetingStatus.Cancelled => "badge-error",
+            _ => "badge-ghost"
+        };
+    }
+}

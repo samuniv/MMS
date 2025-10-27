@@ -28,10 +28,35 @@ public class IndexModel : PageModel
 
     public List<User> Users { get; set; } = new();
     public Dictionary<int, List<string>> UserRoles { get; set; } = new();
+    
+    [BindProperty(SupportsGet = true)]
+    public string? SearchTerm { get; set; }
+    
+    [BindProperty(SupportsGet = true)]
+    public string? StatusFilter { get; set; }
 
     public async Task OnGetAsync()
     {
-        Users = await _userManager.Users.OrderBy(u => u.LastName).ToListAsync();
+        var query = _userManager.Users.AsQueryable();
+        
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            query = query.Where(u => 
+                u.FirstName.Contains(SearchTerm) ||
+                u.LastName.Contains(SearchTerm) ||
+                u.Email.Contains(SearchTerm) ||
+                u.Department.Contains(SearchTerm));
+        }
+        
+        // Apply status filter
+        if (!string.IsNullOrWhiteSpace(StatusFilter))
+        {
+            var isActive = StatusFilter.ToLower() == "active";
+            query = query.Where(u => u.IsActive == isActive);
+        }
+        
+        Users = await query.OrderBy(u => u.LastName).ToListAsync();
 
         foreach (var user in Users)
         {
