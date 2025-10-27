@@ -22,6 +22,20 @@ builder.Services.AddRazorPages();
 // Register application services
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IRoleManagementService, 
     MeetingManagementSystem.Infrastructure.Services.RoleManagementService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingService,
+    MeetingManagementSystem.Infrastructure.Services.MeetingService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IRoomService,
+    MeetingManagementSystem.Infrastructure.Services.RoomService>();
+
+// Register repositories
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.MeetingRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IUserRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.UserRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingRoomRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.MeetingRoomRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingParticipantRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.MeetingParticipantRepository>();
 
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
