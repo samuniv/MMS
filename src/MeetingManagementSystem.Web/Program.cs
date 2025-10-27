@@ -23,6 +23,10 @@ builder.Services.AddRazorPages();
 builder.Services.Configure<MeetingManagementSystem.Core.DTOs.EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
+// Configure Document Settings
+builder.Services.Configure<MeetingManagementSystem.Core.DTOs.DocumentSettings>(
+    builder.Configuration.GetSection("DocumentSettings"));
+
 // Register application services
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IRoleManagementService, 
     MeetingManagementSystem.Infrastructure.Services.RoleManagementService>();
@@ -34,6 +38,8 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.INotification
     MeetingManagementSystem.Infrastructure.Services.NotificationService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IReminderSchedulerService,
     MeetingManagementSystem.Infrastructure.Services.ReminderSchedulerService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IDocumentService,
+    MeetingManagementSystem.Infrastructure.Services.DocumentService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
@@ -47,6 +53,8 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingRoomR
     MeetingManagementSystem.Infrastructure.Repositories.MeetingRoomRepository>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingParticipantRepository,
     MeetingManagementSystem.Infrastructure.Repositories.MeetingParticipantRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IDocumentRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.DocumentRepository>();
 
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
