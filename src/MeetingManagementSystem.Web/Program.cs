@@ -54,11 +54,28 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-// Ensure database is created
+// Initialize database and seed data
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        
+        // Ensure database is created
+        await context.Database.EnsureCreatedAsync();
+        
+        // Seed initial data
+        await DbSeeder.SeedAsync(context, userManager, roleManager);
+        
+        Log.Information("Database initialized and seeded successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while initializing the database");
+    }
 }
 
 try

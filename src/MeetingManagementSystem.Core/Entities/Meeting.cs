@@ -20,4 +20,7 @@ public class Meeting
     public User Organizer { get; set; } = null!;
     public MeetingRoom? MeetingRoom { get; set; }
     public ICollection<MeetingParticipant> Participants { get; set; } = new List<MeetingParticipant>();
+    public ICollection<AgendaItem> AgendaItems { get; set; } = new List<AgendaItem>();
+    public ICollection<MeetingDocument> Documents { get; set; } = new List<MeetingDocument>();
+    public MeetingMinutes? Minutes { get; set; }
 }

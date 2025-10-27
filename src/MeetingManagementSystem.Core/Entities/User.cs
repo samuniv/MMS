@@ -15,4 +15,9 @@ public class User : IdentityUser<int>
     // Navigation Properties
     public ICollection<Meeting> OrganizedMeetings { get; set; } = new List<Meeting>();
     public ICollection<MeetingParticipant> MeetingParticipations { get; set; } = new List<MeetingParticipant>();
+    public ICollection<AgendaItem> PresentedAgendaItems { get; set; } = new List<AgendaItem>();
+    public ICollection<ActionItem> AssignedActionItems { get; set; } = new List<ActionItem>();
+    public ICollection<MeetingDocument> UploadedDocuments { get; set; } = new List<MeetingDocument>();
+    public ICollection<MeetingMinutes> CreatedMinutes { get; set; } = new List<MeetingMinutes>();
+    public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }
