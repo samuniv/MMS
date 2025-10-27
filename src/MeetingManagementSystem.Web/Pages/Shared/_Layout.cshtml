@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Meeting Management System</title>
+    
+    <!-- Tailwind CSS and DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="drawer lg:drawer-open">
+        <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+        
+        <!-- Page content -->
+        <div class="drawer-content flex flex-col">
+            <!-- Navbar -->
+            <div class="navbar bg-base-100 shadow-sm">
+                <div class="flex-none lg:hidden">
+                    <label for="drawer-toggle" class="btn btn-square btn-ghost">
+                        <i class="fas fa-bars text-xl"></i>
+                    </label>
+                </div>
+                <div class="flex-1">
+                    <h1 class="text-xl font-semibold">@ViewData["Title"]</h1>
+                </div>
+                <div class="flex-none">
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                            <div class="w-10 rounded-full">
+                                <i class="fas fa-user-circle text-2xl"></i>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                            <li><a href="/Account/Manage">Profile</a></li>
+                            <li><a href="/Account/Logout">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main content -->
+            <main class="flex-1 p-6">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success mb-4">
+                        <i class="fas fa-check-circle"></i>
+                        <span>@TempData["SuccessMessage"]</span>
+                    </div>
+                }
+                
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-error mb-4">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>@TempData["ErrorMessage"]</span>
+                    </div>
+                }
+                
+                @RenderBody()
+            </main>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="drawer-side">
+            <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
+            <aside class="min-h-full w-64 bg-base-200">
+                <div class="p-4">
+                    <h2 class="text-lg font-bold text-primary">Meeting Management</h2>
+                    <p class="text-sm text-base-content/70">Government Office System</p>
+                </div>
+                
+                <ul class="menu p-4 space-y-2">
+                    <li>
+                        <a href="/" class="flex items-center space-x-3">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Meetings" class="flex items-center space-x-3">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Meetings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Rooms" class="flex items-center space-x-3">
+                            <i class="fas fa-door-open"></i>
+                            <span>Meeting Rooms</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Reports" class="flex items-center space-x-3">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

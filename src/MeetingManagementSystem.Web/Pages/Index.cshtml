@@ -1,0 +1,88 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Stats Cards -->
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-primary">
+            <i class="fas fa-calendar-check text-3xl"></i>
+        </div>
+        <div class="stat-title">Today's Meetings</div>
+        <div class="stat-value text-primary">0</div>
+        <div class="stat-desc">No meetings scheduled</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-secondary">
+            <i class="fas fa-clock text-3xl"></i>
+        </div>
+        <div class="stat-title">Upcoming</div>
+        <div class="stat-value text-secondary">0</div>
+        <div class="stat-desc">This week</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-accent">
+            <i class="fas fa-door-open text-3xl"></i>
+        </div>
+        <div class="stat-title">Available Rooms</div>
+        <div class="stat-value text-accent">0</div>
+        <div class="stat-desc">Right now</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-info">
+            <i class="fas fa-users text-3xl"></i>
+        </div>
+        <div class="stat-title">Active Users</div>
+        <div class="stat-value text-info">0</div>
+        <div class="stat-desc">System users</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Meetings -->
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">
+                <i class="fas fa-calendar-alt"></i>
+                Recent Meetings
+            </h2>
+            <div class="text-center py-8 text-base-content/60">
+                <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                <p>No meetings found</p>
+                <a href="/Meetings/Create" class="btn btn-primary btn-sm mt-4">
+                    <i class="fas fa-plus"></i>
+                    Schedule Meeting
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card bg-base-100 shadow">
+        <div class="card-body">
+            <h2 class="card-title">
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
+            <div class="space-y-3">
+                <a href="/Meetings/Create" class="btn btn-primary btn-block justify-start">
+                    <i class="fas fa-plus"></i>
+                    Schedule New Meeting
+                </a>
+                <a href="/Rooms" class="btn btn-secondary btn-block justify-start">
+                    <i class="fas fa-search"></i>
+                    Check Room Availability
+                </a>
+                <a href="/Reports" class="btn btn-accent btn-block justify-start">
+                    <i class="fas fa-chart-bar"></i>
+                    View Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

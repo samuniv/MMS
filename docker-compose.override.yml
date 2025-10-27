@@ -1,0 +1,13 @@
+services:
+  app:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    volumes:
+      - ./src:/src
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base

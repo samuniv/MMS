@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: meetingmanagement_postgres
+    environment:
+      POSTGRES_DB: meetingmanagement
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - meeting-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  app:
+    build: .
+    container_name: meetingmanagement_app
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=meetingmanagement;Username=postgres;Password=postgres
+      - EmailSettings__SmtpServer=mailhog
+      - EmailSettings__SmtpPort=1025
+    networks:
+      - meeting-network
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: meetingmanagement_mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - meeting-network
+
+volumes:
+  postgres_data:
+
+networks:
+  meeting-network:
+    driver: bridge
