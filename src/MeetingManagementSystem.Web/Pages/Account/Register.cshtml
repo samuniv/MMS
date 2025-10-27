@@ -1,0 +1,100 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="min-h-screen flex items-center justify-center bg-base-200 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-3xl font-bold text-center mb-6">Register</h2>
+            <p class="text-center text-base-content/70 mb-6">Create your government office account</p>
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-error mb-4" role="alert"></div>
+
+                <div class="form-control mb-4">
+                    <label asp-for="Input.Email" class="label">
+                        <span class="label-text">Email Address</span>
+                    </label>
+                    <input asp-for="Input.Email" class="input input-bordered w-full" autocomplete="username" />
+                    <span asp-validation-for="Input.Email" class="label-text-alt text-error"></span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="form-control">
+                        <label asp-for="Input.FirstName" class="label">
+                            <span class="label-text">First Name</span>
+                        </label>
+                        <input asp-for="Input.FirstName" class="input input-bordered w-full" />
+                        <span asp-validation-for="Input.FirstName" class="label-text-alt text-error"></span>
+                    </div>
+
+                    <div class="form-control">
+                        <label asp-for="Input.LastName" class="label">
+                            <span class="label-text">Last Name</span>
+                        </label>
+                        <input asp-for="Input.LastName" class="input input-bordered w-full" />
+                        <span asp-validation-for="Input.LastName" class="label-text-alt text-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label asp-for="Input.Department" class="label">
+                        <span class="label-text">Department</span>
+                    </label>
+                    <input asp-for="Input.Department" class="input input-bordered w-full" />
+                    <span asp-validation-for="Input.Department" class="label-text-alt text-error"></span>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label asp-for="Input.Position" class="label">
+                        <span class="label-text">Position</span>
+                    </label>
+                    <input asp-for="Input.Position" class="input input-bordered w-full" />
+                    <span asp-validation-for="Input.Position" class="label-text-alt text-error"></span>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label asp-for="Input.OfficeLocation" class="label">
+                        <span class="label-text">Office Location</span>
+                    </label>
+                    <input asp-for="Input.OfficeLocation" class="input input-bordered w-full" />
+                    <span asp-validation-for="Input.OfficeLocation" class="label-text-alt text-error"></span>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label asp-for="Input.Password" class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <input asp-for="Input.Password" class="input input-bordered w-full" autocomplete="new-password" />
+                    <span asp-validation-for="Input.Password" class="label-text-alt text-error"></span>
+                    <label class="label">
+                        <span class="label-text-alt">Minimum 8 characters with uppercase, lowercase, and digit</span>
+                    </label>
+                </div>
+
+                <div class="form-control mb-6">
+                    <label asp-for="Input.ConfirmPassword" class="label">
+                        <span class="label-text">Confirm Password</span>
+                    </label>
+                    <input asp-for="Input.ConfirmPassword" class="input input-bordered w-full" autocomplete="new-password" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="label-text-alt text-error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full mb-4">Register</button>
+
+                <div class="text-center">
+                    <p class="text-sm">
+                        Already have an account? 
+                        <a asp-page="./Login" class="link link-primary">Login here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

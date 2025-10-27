@@ -1,0 +1,126 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Admin.Users.ManageRolesModel
+@{
+    ViewData["Title"] = "Manage User Roles";
+}
+
+<div class="mb-6">
+    <div class="flex items-center gap-4">
+        <a asp-page="./Index" class="btn btn-ghost btn-sm">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold">Manage Roles</h1>
+            <p class="text-base-content/70">@Model.User?.FirstName @Model.User?.LastName (@Model.User?.Email)</p>
+        </div>
+    </div>
+</div>
+
+@if (Model.User == null)
+{
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>User not found.</span>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Current Roles -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Current Roles</h2>
+                @if (Model.CurrentRoles.Any())
+                {
+                    <div class="space-y-2">
+                        @foreach (var role in Model.CurrentRoles)
+                        {
+                            <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-user-shield text-primary"></i>
+                                    <span class="font-semibold">@role</span>
+                                </div>
+                                <form method="post" asp-page-handler="RemoveRole" class="inline">
+                                    <input type="hidden" name="userId" value="@Model.User.Id" />
+                                    <input type="hidden" name="roleName" value="@role" />
+                                    <button type="submit" class="btn btn-sm btn-error">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-base-content/70">No roles assigned.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Available Roles -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Available Roles</h2>
+                @if (Model.AvailableRoles.Any())
+                {
+                    <div class="space-y-2">
+                        @foreach (var role in Model.AvailableRoles)
+                        {
+                            <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-user-plus text-success"></i>
+                                    <span class="font-semibold">@role</span>
+                                </div>
+                                <form method="post" asp-page-handler="AssignRole" class="inline">
+                                    <input type="hidden" name="userId" value="@Model.User.Id" />
+                                    <input type="hidden" name="roleName" value="@role" />
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-plus"></i> Assign
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-base-content/70">All roles have been assigned.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Descriptions -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+        <div class="card-body">
+            <h2 class="card-title">Role Descriptions</h2>
+            <div class="space-y-4">
+                <div class="p-4 bg-base-200 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2">
+                        <i class="fas fa-crown text-warning"></i> Administrator
+                    </h3>
+                    <p class="text-base-content/70">
+                        Full system access including user management, system configuration, and all meeting operations.
+                    </p>
+                </div>
+                <div class="p-4 bg-base-200 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2">
+                        <i class="fas fa-briefcase text-primary"></i> Government Official
+                    </h3>
+                    <p class="text-base-content/70">
+                        Can create and manage meetings, book rooms, manage agendas, and access reports.
+                    </p>
+                </div>
+                <div class="p-4 bg-base-200 rounded-lg">
+                    <h3 class="font-bold text-lg mb-2">
+                        <i class="fas fa-users text-info"></i> Participant
+                    </h3>
+                    <p class="text-base-content/70">
+                        Can view meeting invitations, access meeting documents, and participate in assigned meetings.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

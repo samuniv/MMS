@@ -43,19 +43,26 @@
     - _Requirements: 6.1, 6.4_
 
 - [ ] 3. Implement authentication and authorization system
-  - [ ] 3.1 Configure ASP.NET Core Identity with custom User model
+
+
+  - [x] 3.1 Configure ASP.NET Core Identity with custom User model
+
+
     - Set up Identity services with PostgreSQL provider
     - Configure password policies and account lockout settings
     - Implement custom user registration and login flows
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ] 3.2 Implement role-based access control
+  - [x] 3.2 Implement role-based access control
+
+
     - Define roles (Administrator, Government Official, Participant)
     - Create authorization policies for different user types
     - Implement role assignment and management functionality
     - _Requirements: 6.1, 6.2_
 
-  - [ ]* 3.3 Create authentication integration tests
+  - [ ] 3.3 Create authentication integration tests
+
     - Write tests for user registration and login flows
     - Test role-based authorization policies
     - Validate password policy enforcement
@@ -81,7 +88,8 @@
     - Implement equipment and resource management
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [ ]* 4.4 Write unit tests for business services
+  - [ ] 4.4 Write unit tests for business services
+
     - Test meeting creation and scheduling logic
     - Validate room booking and conflict detection
     - Test participant management operations
@@ -101,7 +109,8 @@
     - Implement notification retry logic for failed deliveries
     - _Requirements: 1.5, 3.5, 5.5, 8.1, 8.2, 8.3, 8.5_
 
-  - [ ]* 5.3 Create notification service tests
+  - [ ] 5.3 Create notification service tests
+
     - Test email template rendering and delivery
     - Validate reminder scheduling and execution
     - Test notification retry mechanisms
@@ -120,7 +129,8 @@
     - Add document version management capabilities
     - _Requirements: 2.4, 3.2, 3.3_
 
-  - [ ]* 6.3 Write document management tests
+  - [ ] 6.3 Write document management tests
+
     - Test file upload validation and storage
     - Validate document access authorization
     - Test document download and preview functionality
@@ -170,7 +180,8 @@
     - Build action item completion workflow
     - _Requirements: 5.4, 5.5_
 
-  - [ ]* 8.3 Write meeting minutes and action item tests
+  - [ ] 8.3 Write meeting minutes and action item tests
+
     - Test minutes recording and saving functionality
     - Validate action item assignment and tracking
     - Test reminder and notification systems
@@ -191,7 +202,8 @@
     - Build configuration management interface
     - _Requirements: 6.4, 6.5, 7.1, 7.2_
 
-  - [ ]* 9.3 Create reporting system tests
+  - [ ] 9.3 Create reporting system tests
+
     - Test report generation and data accuracy
     - Validate export functionality and formats
     - Test dashboard metrics and calculations
@@ -212,7 +224,8 @@
     - Build notification opt-out functionality
     - _Requirements: 8.4, 8.5_
 
-  - [ ]* 10.3 Write participant interaction tests
+  - [ ] 10.3 Write participant interaction tests
+
     - Test invitation response workflows
     - Validate notification preference management
     - Test participant communication features
@@ -233,7 +246,8 @@
     - Implement rate limiting and abuse prevention
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ]* 11.3 Create security and audit tests
+  - [ ] 11.3 Create security and audit tests
+
     - Test audit logging functionality and completeness
     - Validate security measures and input validation
     - Test authorization and access control
@@ -254,7 +268,8 @@
     - Add performance monitoring and logging
     - _Requirements: 6.4, 6.5_
 
-  - [ ]* 12.3 Create deployment and integration tests
+  - [ ] 12.3 Create deployment and integration tests
+
     - Test Docker container deployment and configuration
     - Validate database migrations and seeding
     - Test production environment setup and monitoring

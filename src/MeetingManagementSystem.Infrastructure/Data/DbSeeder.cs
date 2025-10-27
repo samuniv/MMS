@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MeetingManagementSystem.Core.Entities;
 using MeetingManagementSystem.Core.Enums;
+using MeetingManagementSystem.Core.Constants;
 
 namespace MeetingManagementSystem.Infrastructure.Data;
 
@@ -28,9 +29,9 @@ public static class DbSeeder
     {
         var roles = new[]
         {
-            "Administrator",
-            "Government Official", 
-            "Participant"
+            Roles.Administrator,
+            Roles.GovernmentOfficial, 
+            Roles.Participant
         };
 
         foreach (var role in roles)
@@ -64,7 +65,7 @@ public static class DbSeeder
             var result = await userManager.CreateAsync(admin, "Admin@123");
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(admin, "Administrator");
+                await userManager.AddToRoleAsync(admin, Roles.Administrator);
             }
         }
 
@@ -88,7 +89,7 @@ public static class DbSeeder
             var result = await userManager.CreateAsync(official, "Official@123");
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(official, "Government Official");
+                await userManager.AddToRoleAsync(official, Roles.GovernmentOfficial);
             }
         }
 
@@ -112,7 +113,7 @@ public static class DbSeeder
             var result = await userManager.CreateAsync(participant, "Participant@123");
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(participant, "Participant");
+                await userManager.AddToRoleAsync(participant, Roles.Participant);
             }
         }
     }
