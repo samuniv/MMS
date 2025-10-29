@@ -1,0 +1,133 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Account.NotificationHistoryModel
+@{
+    ViewData["Title"] = "Notification History";
+}
+
+<div class="max-w-6xl mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold">Notification History</h1>
+            <p class="text-base-content/70 mt-2">View all notifications sent to you</p>
+        </div>
+        <a href="/Account/NotificationSettings" class="btn btn-outline">
+            <i class="fas fa-cog mr-2"></i>
+            Settings
+        </a>
+    </div>
+
+    @if (!Model.Notifications.Any())
+    {
+        <div class="card bg-base-100 shadow">
+            <div class="card-body text-center py-12">
+                <i class="fas fa-bell-slash text-6xl text-base-content/30 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">No Notifications Yet</h3>
+                <p class="text-base-content/60">You haven't received any notifications yet.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-4">
+            @foreach (var notification in Model.Notifications)
+            {
+                <div class="card bg-base-100 shadow hover:shadow-lg transition-shadow">
+                    <div class="card-body">
+                        <div class="flex items-start gap-4">
+                            <!-- Icon based on notification type -->
+                            <div class="flex-shrink-0">
+                                @if (notification.NotificationType.Contains("Meeting"))
+                                {
+                                    <div class="avatar placeholder">
+                                        <div class="bg-primary text-primary-content rounded-full w-12">
+                                            <i class="fas fa-calendar-alt text-xl"></i>
+                                        </div>
+                                    </div>
+                                }
+                                else if (notification.NotificationType.Contains("ActionItem"))
+                                {
+                                    <div class="avatar placeholder">
+                                        <div class="bg-secondary text-secondary-content rounded-full w-12">
+                                            <i class="fas fa-tasks text-xl"></i>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="avatar placeholder">
+                                        <div class="bg-accent text-accent-content rounded-full w-12">
+                                            <i class="fas fa-bell text-xl"></i>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Notification Content -->
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <h3 class="font-semibold text-lg">@notification.Subject</h3>
+                                        <div class="flex items-center gap-3 text-sm text-base-content/60 mt-1">
+                                            <span>
+                                                <i class="fas fa-clock mr-1"></i>
+                                                @notification.SentAt.ToString("MMM dd, yyyy 'at' h:mm tt")
+                                            </span>
+                                            <span class="badge badge-sm">
+                                                @notification.DeliveryMethod
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Delivery Status -->
+                                    @if (notification.IsDelivered)
+                                    {
+                                        <div class="badge badge-success gap-2">
+                                            <i class="fas fa-check"></i>
+                                            Delivered
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="badge badge-error gap-2">
+                                            <i class="fas fa-times"></i>
+                                            Failed
+                                        </div>
+                                    }
+                                </div>
+
+                                <p class="text-base-content/80 mb-3">@notification.Message</p>
+
+                                <!-- Related Links -->
+                                <div class="flex gap-2">
+                                    @if (notification.RelatedMeetingId.HasValue)
+                                    {
+                                        <a href="/Meetings/Details?id=@notification.RelatedMeetingId" class="btn btn-sm btn-outline">
+                                            <i class="fas fa-external-link-alt mr-1"></i>
+                                            View Meeting
+                                        </a>
+                                    }
+                                    @if (notification.RelatedActionItemId.HasValue)
+                                    {
+                                        <a href="/ActionItems/Index" class="btn btn-sm btn-outline">
+                                            <i class="fas fa-external-link-alt mr-1"></i>
+                                            View Action Item
+                                        </a>
+                                    }
+                                </div>
+
+                                <!-- Error Message if failed -->
+                                @if (!notification.IsDelivered && !string.IsNullOrEmpty(notification.ErrorMessage))
+                                {
+                                    <div class="alert alert-error mt-3">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>@notification.ErrorMessage</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

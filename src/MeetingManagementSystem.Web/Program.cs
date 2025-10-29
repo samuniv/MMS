@@ -48,6 +48,8 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IReportServic
     MeetingManagementSystem.Infrastructure.Services.ReportService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.ISystemMonitoringService,
     MeetingManagementSystem.Infrastructure.Services.SystemMonitoringService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.INotificationPreferenceService,
+    MeetingManagementSystem.Infrastructure.Services.NotificationPreferenceService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();

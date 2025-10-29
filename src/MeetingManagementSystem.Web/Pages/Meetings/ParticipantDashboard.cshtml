@@ -1,0 +1,292 @@
+@page
+@using MeetingManagementSystem.Core.Enums
+@model MeetingManagementSystem.Web.Pages.Meetings.ParticipantDashboardModel
+@{
+    ViewData["Title"] = "My Meeting Dashboard";
+}
+
+<div class="mb-6">
+    <h1 class="text-3xl font-bold">My Meeting Dashboard</h1>
+    <p class="text-base-content/70 mt-2">Manage your meeting invitations and attendance</p>
+</div>
+
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-warning">
+            <i class="fas fa-clock text-3xl"></i>
+        </div>
+        <div class="stat-title">Pending Invitations</div>
+        <div class="stat-value text-warning">@Model.PendingInvitations.Count</div>
+        <div class="stat-desc">Awaiting your response</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-info">
+            <i class="fas fa-calendar-check text-3xl"></i>
+        </div>
+        <div class="stat-title">Upcoming Meetings</div>
+        <div class="stat-value text-info">@Model.UpcomingMeetings.Count</div>
+        <div class="stat-desc">Confirmed attendance</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-success">
+            <i class="fas fa-check-circle text-3xl"></i>
+        </div>
+        <div class="stat-title">Accepted</div>
+        <div class="stat-value text-success">@Model.AttendanceStats.GetValueOrDefault(AttendanceStatus.Accepted, 0)</div>
+        <div class="stat-desc">Total accepted invitations</div>
+    </div>
+    
+    <div class="stat bg-base-100 shadow rounded-lg">
+        <div class="stat-figure text-primary">
+            <i class="fas fa-user-check text-3xl"></i>
+        </div>
+        <div class="stat-title">Attended</div>
+        <div class="stat-value text-primary">@Model.AttendanceStats.GetValueOrDefault(AttendanceStatus.Attended, 0)</div>
+        <div class="stat-desc">Meetings attended</div>
+    </div>
+</div>
+
+<!-- Pending Invitations -->
+@if (Model.PendingInvitations.Any())
+{
+    <div class="card bg-base-100 shadow mb-6">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-4">
+                <i class="fas fa-envelope text-warning"></i>
+                Pending Invitations
+                <span class="badge badge-warning">@Model.PendingInvitations.Count</span>
+            </h2>
+            
+            <div class="space-y-3">
+                @foreach (var invitation in Model.PendingInvitations)
+                {
+                    <div class="alert alert-warning shadow-sm">
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-lg">@invitation.Meeting.Title</h3>
+                                    <div class="flex flex-wrap gap-4 mt-2 text-sm">
+                                        <span>
+                                            <i class="fas fa-calendar"></i>
+                                            @invitation.Meeting.ScheduledDate.ToString("MMM dd, yyyy")
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-clock"></i>
+                                            @invitation.Meeting.StartTime.ToString(@"hh\:mm") - @invitation.Meeting.EndTime.ToString(@"hh\:mm")
+                                        </span>
+                                        @if (invitation.Meeting.MeetingRoom != null)
+                                        {
+                                            <span>
+                                                <i class="fas fa-door-open"></i>
+                                                @invitation.Meeting.MeetingRoom.Name
+                                            </span>
+                                        }
+                                        <span>
+                                            <i class="fas fa-user"></i>
+                                            @invitation.Meeting.Organizer.FirstName @invitation.Meeting.Organizer.LastName
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 ml-4">
+                                    <a asp-page="RespondToInvitation" asp-route-id="@invitation.Meeting.Id" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-reply"></i>
+                                        Respond
+                                    </a>
+                                    <a asp-page="Details" asp-route-id="@invitation.Meeting.Id" class="btn btn-sm btn-ghost">
+                                        <i class="fas fa-eye"></i>
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Upcoming Meetings -->
+<div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">
+            <i class="fas fa-calendar-alt text-info"></i>
+            Upcoming Meetings
+            @if (Model.UpcomingMeetings.Any())
+            {
+                <span class="badge badge-info">@Model.UpcomingMeetings.Count</span>
+            }
+        </h2>
+        
+        @if (Model.UpcomingMeetings.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Meeting</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Organizer</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invitation in Model.UpcomingMeetings)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="font-bold">@invitation.Meeting.Title</div>
+                                    @if (!string.IsNullOrWhiteSpace(invitation.Meeting.Description))
+                                    {
+                                        <div class="text-sm text-base-content/70 truncate max-w-xs">
+                                            @invitation.Meeting.Description
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div>@invitation.Meeting.ScheduledDate.ToString("MMM dd, yyyy")</div>
+                                    <div class="text-sm text-base-content/70">
+                                        @invitation.Meeting.StartTime.ToString(@"hh\:mm") - @invitation.Meeting.EndTime.ToString(@"hh\:mm")
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (invitation.Meeting.MeetingRoom != null)
+                                    {
+                                        <div>@invitation.Meeting.MeetingRoom.Name</div>
+                                        <div class="text-sm text-base-content/70">@invitation.Meeting.MeetingRoom.Location</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-base-content/50">Not assigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div>@invitation.Meeting.Organizer.FirstName @invitation.Meeting.Organizer.LastName</div>
+                                    <div class="text-sm text-base-content/70">@invitation.Meeting.Organizer.Position</div>
+                                </td>
+                                <td>
+                                    <div class="badge @GetAttendanceBadgeClass(invitation.Participant.AttendanceStatus)">
+                                        @invitation.Participant.AttendanceStatus
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <a asp-page="Details" asp-route-id="@invitation.Meeting.Id" class="btn btn-sm btn-ghost">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12 text-base-content/60">
+                <i class="fas fa-calendar-times text-5xl mb-4"></i>
+                <p class="text-lg">No upcoming meetings</p>
+                <p class="text-sm">You don't have any confirmed meetings scheduled</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Past Meetings -->
+<div class="card bg-base-100 shadow">
+    <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">
+            <i class="fas fa-history text-base-content/70"></i>
+            Recent Past Meetings
+        </h2>
+        
+        @if (Model.PastMeetings.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Meeting</th>
+                            <th>Date</th>
+                            <th>Organizer</th>
+                            <th>Your Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invitation in Model.PastMeetings)
+                        {
+                            <tr class="opacity-75">
+                                <td>
+                                    <div class="font-bold">@invitation.Meeting.Title</div>
+                                    <div class="badge badge-sm @GetMeetingStatusBadgeClass(invitation.Meeting.Status)">
+                                        @invitation.Meeting.Status
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>@invitation.Meeting.ScheduledDate.ToString("MMM dd, yyyy")</div>
+                                    <div class="text-sm text-base-content/70">
+                                        @invitation.Meeting.StartTime.ToString(@"hh\:mm")
+                                    </div>
+                                </td>
+                                <td>
+                                    @invitation.Meeting.Organizer.FirstName @invitation.Meeting.Organizer.LastName
+                                </td>
+                                <td>
+                                    <div class="badge @GetAttendanceBadgeClass(invitation.Participant.AttendanceStatus)">
+                                        @invitation.Participant.AttendanceStatus
+                                    </div>
+                                </td>
+                                <td>
+                                    <a asp-page="Details" asp-route-id="@invitation.Meeting.Id" class="btn btn-sm btn-ghost">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12 text-base-content/60">
+                <i class="fas fa-inbox text-5xl mb-4"></i>
+                <p class="text-lg">No past meetings</p>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    private string GetAttendanceBadgeClass(AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Accepted => "badge-success",
+            AttendanceStatus.Attended => "badge-success",
+            AttendanceStatus.Declined => "badge-error",
+            AttendanceStatus.Absent => "badge-error",
+            AttendanceStatus.Pending => "badge-warning",
+            _ => "badge-ghost"
+        };
+    }
+    
+    private string GetMeetingStatusBadgeClass(MeetingStatus status)
+    {
+        return status switch
+        {
+            MeetingStatus.Scheduled => "badge-info",
+            MeetingStatus.InProgress => "badge-warning",
+            MeetingStatus.Completed => "badge-success",
+            MeetingStatus.Cancelled => "badge-error",
+            _ => "badge-ghost"
+        };
+    }
+}

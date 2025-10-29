@@ -1,0 +1,175 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Account.NotificationSettingsModel
+@{
+    ViewData["Title"] = "Notification Settings";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold">Notification Settings</h1>
+        <p class="text-base-content/70 mt-2">Manage your notification preferences and delivery methods</p>
+    </div>
+
+    <form method="post">
+        <div class="space-y-6">
+            <!-- Meeting Notifications -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        Meeting Notifications
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.MeetingInvitations" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Meeting Invitations</span>
+                                    <p class="text-sm text-base-content/60">Receive notifications when you're invited to meetings</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.MeetingReminders" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Meeting Reminders</span>
+                                    <p class="text-sm text-base-content/60">Get reminded before meetings start</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.MeetingUpdates" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Meeting Updates</span>
+                                    <p class="text-sm text-base-content/60">Notify me when meeting details change</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.MeetingCancellations" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Meeting Cancellations</span>
+                                    <p class="text-sm text-base-content/60">Alert me when meetings are cancelled</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Item Notifications -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">
+                        <i class="fas fa-tasks mr-2"></i>
+                        Action Item Notifications
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.ActionItemAssignments" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Action Item Assignments</span>
+                                    <p class="text-sm text-base-content/60">Notify me when action items are assigned to me</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.ActionItemReminders" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Action Item Reminders</span>
+                                    <p class="text-sm text-base-content/60">Remind me before action item deadlines</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.ActionItemUpdates" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Action Item Updates</span>
+                                    <p class="text-sm text-base-content/60">Notify me when action items are updated</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Methods -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Delivery Methods
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.EmailNotifications" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">Email Notifications</span>
+                                    <p class="text-sm text-base-content/60">Send notifications to your email address</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.SystemNotifications" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">System Notifications</span>
+                                    <p class="text-sm text-base-content/60">Show notifications in the system dashboard</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reminder Timing -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">
+                        <i class="fas fa-clock mr-2"></i>
+                        Reminder Timing
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.Reminder24Hours" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">24 Hours Before</span>
+                                    <p class="text-sm text-base-content/60">Send reminder one day before meetings</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-4">
+                                <input type="checkbox" asp-for="Preferences.Reminder1Hour" class="checkbox checkbox-primary" />
+                                <div>
+                                    <span class="label-text font-semibold">1 Hour Before</span>
+                                    <p class="text-sm text-base-content/60">Send reminder one hour before meetings</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Settings
+                </button>
+                <a href="/Account/NotificationHistory" class="btn btn-outline">
+                    <i class="fas fa-history mr-2"></i>
+                    View Notification History
+                </a>
+            </div>
+        </div>
+    </form>
+</div>

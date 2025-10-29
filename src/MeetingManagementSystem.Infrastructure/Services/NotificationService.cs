@@ -13,13 +13,16 @@ public class NotificationService : INotificationService
 {
     private readonly EmailSettings _emailSettings;
     private readonly ILogger<NotificationService> _logger;
+    private readonly INotificationPreferenceService _preferenceService;
 
     public NotificationService(
         IOptions<EmailSettings> emailSettings,
-        ILogger<NotificationService> logger)
+        ILogger<NotificationService> logger,
+        INotificationPreferenceService preferenceService)
     {
         _emailSettings = emailSettings.Value;
         _logger = logger;
+        _preferenceService = preferenceService;
     }
 
     public async Task SendMeetingInvitationAsync(Meeting meeting, IEnumerable<User> participants)
@@ -34,7 +37,29 @@ public class NotificationService : INotificationService
         {
             if (!string.IsNullOrEmpty(participant.Email))
             {
-                await SendEmailWithRetryAsync(participant.Email, subject, body);
+                // Check if user wants to receive meeting invitations
+                if (await _preferenceService.ShouldSendNotificationAsync(participant.Id, "MeetingInvitation"))
+                {
+                    await SendEmailWithRetryAsync(participant.Email, subject, body);
+                    
+                    // Log notification history
+                    await _preferenceService.LogNotificationAsync(new NotificationHistory
+                    {
+                        UserId = participant.Id,
+                        NotificationType = "MeetingInvitation",
+                        Subject = subject,
+                        Message = $"Invitation to meeting: {meeting.Title}",
+                        DeliveryMethod = "Email",
+                        IsDelivered = true,
+                        RelatedMeetingId = meeting.Id,
+                        SentAt = DateTime.UtcNow,
+                        DeliveredAt = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    _logger.LogInformation("Skipping meeting invitation for user {UserId} due to notification preferences", participant.Id);
+                }
             }
         }
     }
@@ -51,14 +76,46 @@ public class NotificationService : INotificationService
         {
             if (!string.IsNullOrEmpty(participant.User.Email))
             {
-                await SendEmailWithRetryAsync(participant.User.Email, subject, body);
+                if (await _preferenceService.ShouldSendNotificationAsync(participant.UserId, "MeetingReminder"))
+                {
+                    await SendEmailWithRetryAsync(participant.User.Email, subject, body);
+                    
+                    await _preferenceService.LogNotificationAsync(new NotificationHistory
+                    {
+                        UserId = participant.UserId,
+                        NotificationType = "MeetingReminder",
+                        Subject = subject,
+                        Message = $"Reminder for meeting: {meeting.Title}",
+                        DeliveryMethod = "Email",
+                        IsDelivered = true,
+                        RelatedMeetingId = meeting.Id,
+                        SentAt = DateTime.UtcNow,
+                        DeliveredAt = DateTime.UtcNow
+                    });
+                }
             }
         }
 
         // Also send to organizer
         if (!string.IsNullOrEmpty(meeting.Organizer.Email))
         {
-            await SendEmailWithRetryAsync(meeting.Organizer.Email, subject, body);
+            if (await _preferenceService.ShouldSendNotificationAsync(meeting.OrganizerId, "MeetingReminder"))
+            {
+                await SendEmailWithRetryAsync(meeting.Organizer.Email, subject, body);
+                
+                await _preferenceService.LogNotificationAsync(new NotificationHistory
+                {
+                    UserId = meeting.OrganizerId,
+                    NotificationType = "MeetingReminder",
+                    Subject = subject,
+                    Message = $"Reminder for meeting: {meeting.Title}",
+                    DeliveryMethod = "Email",
+                    IsDelivered = true,
+                    RelatedMeetingId = meeting.Id,
+                    SentAt = DateTime.UtcNow,
+                    DeliveredAt = DateTime.UtcNow
+                });
+            }
         }
     }
 
@@ -89,10 +146,26 @@ public class NotificationService : INotificationService
             return;
         }
 
-        var subject = $"Action Item Reminder: Due {actionItem.DueDate:yyyy-MM-dd}";
-        var body = BuildActionItemReminderTemplate(actionItem);
+        if (await _preferenceService.ShouldSendNotificationAsync(actionItem.AssignedToId, "ActionItemReminder"))
+        {
+            var subject = $"Action Item Reminder: Due {actionItem.DueDate:yyyy-MM-dd}";
+            var body = BuildActionItemReminderTemplate(actionItem);
 
-        await SendEmailWithRetryAsync(actionItem.AssignedTo.Email, subject, body);
+            await SendEmailWithRetryAsync(actionItem.AssignedTo.Email, subject, body);
+            
+            await _preferenceService.LogNotificationAsync(new NotificationHistory
+            {
+                UserId = actionItem.AssignedToId,
+                NotificationType = "ActionItemReminder",
+                Subject = subject,
+                Message = $"Reminder for action item: {actionItem.Description}",
+                DeliveryMethod = "Email",
+                IsDelivered = true,
+                RelatedActionItemId = actionItem.Id,
+                SentAt = DateTime.UtcNow,
+                DeliveredAt = DateTime.UtcNow
+            });
+        }
     }
 
     public async Task SendActionItemAssignmentAsync(ActionItem actionItem)

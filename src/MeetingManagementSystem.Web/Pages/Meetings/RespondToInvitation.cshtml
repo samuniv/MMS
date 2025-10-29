@@ -1,0 +1,169 @@
+@page "{id:int}"
+@using MeetingManagementSystem.Core.Enums
+@model MeetingManagementSystem.Web.Pages.Meetings.RespondToInvitationModel
+@{
+    ViewData["Title"] = "Respond to Meeting Invitation";
+}
+
+@if (Model.Meeting == null)
+{
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Meeting not found</span>
+    </div>
+    return;
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold">Meeting Invitation</h1>
+        <p class="text-base-content/70 mt-2">Please respond to this meeting invitation</p>
+    </div>
+
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-4">
+                <i class="fas fa-calendar-alt text-primary"></i>
+                @Model.Meeting.Title
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Organizer</span>
+                    </label>
+                    <p class="flex items-center gap-2">
+                        <i class="fas fa-user text-primary"></i>
+                        @Model.Meeting.Organizer.FirstName @Model.Meeting.Organizer.LastName
+                    </p>
+                    <p class="text-sm text-base-content/70 ml-6">@Model.Meeting.Organizer.Position</p>
+                </div>
+                
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Date & Time</span>
+                    </label>
+                    <p class="flex items-center gap-2">
+                        <i class="fas fa-calendar text-primary"></i>
+                        @Model.Meeting.ScheduledDate.ToString("dddd, MMMM dd, yyyy")
+                    </p>
+                    <p class="flex items-center gap-2 ml-6">
+                        <i class="fas fa-clock text-primary"></i>
+                        @Model.Meeting.StartTime.ToString(@"hh\:mm") - @Model.Meeting.EndTime.ToString(@"hh\:mm")
+                    </p>
+                </div>
+                
+                @if (Model.Meeting.MeetingRoom != null)
+                {
+                    <div>
+                        <label class="label">
+                            <span class="label-text font-semibold">Location</span>
+                        </label>
+                        <p class="flex items-center gap-2">
+                            <i class="fas fa-door-open text-primary"></i>
+                            @Model.Meeting.MeetingRoom.Name
+                        </p>
+                        <p class="text-sm text-base-content/70 ml-6">@Model.Meeting.MeetingRoom.Location</p>
+                    </div>
+                }
+                
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Current Status</span>
+                    </label>
+                    <div class="badge @GetAttendanceBadgeClass(Model.CurrentParticipant?.AttendanceStatus ?? AttendanceStatus.Pending)">
+                        @(Model.CurrentParticipant?.AttendanceStatus ?? AttendanceStatus.Pending)
+                    </div>
+                    @if (Model.CurrentParticipant?.ResponseDate != null)
+                    {
+                        <p class="text-sm text-base-content/70 mt-1">
+                            Responded on @Model.CurrentParticipant.ResponseDate.Value.ToString("MMM dd, yyyy")
+                        </p>
+                    }
+                </div>
+            </div>
+            
+            @if (!string.IsNullOrWhiteSpace(Model.Meeting.Description))
+            {
+                <div class="mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Description</span>
+                    </label>
+                    <p class="text-base-content/80 bg-base-200 p-4 rounded-lg">@Model.Meeting.Description</p>
+                </div>
+            }
+            
+            @if (Model.Meeting.AgendaItems.Any())
+            {
+                <div class="mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Agenda</span>
+                    </label>
+                    <div class="space-y-2">
+                        @foreach (var item in Model.Meeting.AgendaItems.OrderBy(a => a.OrderIndex))
+                        {
+                            <div class="flex items-start gap-3 bg-base-200 p-3 rounded-lg">
+                                <span class="badge badge-primary">@item.OrderIndex</span>
+                                <div class="flex-1">
+                                    <p class="font-medium">@item.Title</p>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <p class="text-sm text-base-content/70 mt-1">@item.Description</p>
+                                    }
+                                    <p class="text-xs text-base-content/60 mt-1">
+                                        <i class="fas fa-clock"></i> @item.AllocatedMinutes minutes
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            
+            <div class="divider"></div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <form method="post" asp-page-handler="Accept" class="flex-1 sm:flex-initial">
+                    <button type="submit" class="btn btn-success btn-lg w-full sm:w-auto">
+                        <i class="fas fa-check"></i>
+                        Accept Invitation
+                    </button>
+                </form>
+                
+                <form method="post" asp-page-handler="Decline" class="flex-1 sm:flex-initial">
+                    <button type="submit" class="btn btn-error btn-lg w-full sm:w-auto" onclick="return confirm('Are you sure you want to decline this invitation?')">
+                        <i class="fas fa-times"></i>
+                        Decline Invitation
+                    </button>
+                </form>
+                
+                <a asp-page="Details" asp-route-id="@Model.Meeting.Id" class="btn btn-ghost btn-lg w-full sm:w-auto">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-6 text-center">
+        <a asp-page="MyMeetings" class="btn btn-ghost">
+            <i class="fas fa-arrow-left"></i>
+            Back to My Meetings
+        </a>
+    </div>
+</div>
+
+@functions {
+    private string GetAttendanceBadgeClass(AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Accepted => "badge-success",
+            AttendanceStatus.Attended => "badge-success",
+            AttendanceStatus.Declined => "badge-error",
+            AttendanceStatus.Absent => "badge-error",
+            AttendanceStatus.Pending => "badge-warning",
+            _ => "badge-ghost"
+        };
+    }
+}

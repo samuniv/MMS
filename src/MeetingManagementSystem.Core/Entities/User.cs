@@ -20,4 +20,6 @@ public class User : IdentityUser<int>
     public ICollection<MeetingDocument> UploadedDocuments { get; set; } = new List<MeetingDocument>();
     public ICollection<MeetingMinutes> CreatedMinutes { get; set; } = new List<MeetingMinutes>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    public NotificationPreference? NotificationPreference { get; set; }
+    public ICollection<NotificationHistory> NotificationHistory { get; set; } = new List<NotificationHistory>();
 }

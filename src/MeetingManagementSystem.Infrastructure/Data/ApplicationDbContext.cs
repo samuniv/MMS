@@ -20,6 +20,8 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<MeetingMinutes> MeetingMinutes { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<ScheduledReminder> ScheduledReminders { get; set; }
+    public DbSet<NotificationPreference> NotificationPreferences { get; set; }
+    public DbSet<NotificationHistory> NotificationHistories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -223,6 +225,56 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             
             entity.HasIndex(e => e.MeetingId)
                 .HasDatabaseName("IX_ScheduledReminder_Meeting");
+        });
+
+        // Configure NotificationPreference entity
+        modelBuilder.Entity<NotificationPreference>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.User)
+                .WithOne(u => u.NotificationPreference)
+                .HasForeignKey<NotificationPreference>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.UserId)
+                .IsUnique()
+                .HasDatabaseName("IX_NotificationPreference_User");
+        });
+
+        // Configure NotificationHistory entity
+        modelBuilder.Entity<NotificationHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.NotificationType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Subject).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Message).HasColumnType("text");
+            entity.Property(e => e.DeliveryMethod).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(500);
+            
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.NotificationHistory)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.RelatedMeeting)
+                .WithMany()
+                .HasForeignKey(e => e.RelatedMeetingId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.RelatedActionItem)
+                .WithMany()
+                .HasForeignKey(e => e.RelatedActionItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.UserId)
+                .HasDatabaseName("IX_NotificationHistory_User");
+            
+            entity.HasIndex(e => e.SentAt)
+                .HasDatabaseName("IX_NotificationHistory_SentAt");
+            
+            entity.HasIndex(e => new { e.UserId, e.IsDelivered })
+                .HasDatabaseName("IX_NotificationHistory_UserDelivery");
         });
     }
 }
