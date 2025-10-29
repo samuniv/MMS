@@ -1,0 +1,140 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Reports.RoomUtilizationModel
+@{
+    ViewData["Title"] = "Room Utilization Report";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Room Utilization Report</h1>
+        <a href="/Reports" class="btn btn-ghost">← Back to Reports</a>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Filter Options</h2>
+            <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Start Date</span>
+                    </label>
+                    <input type="date" asp-for="StartDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">End Date</span>
+                    </label>
+                    <input type="date" asp-for="EndDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">&nbsp;</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.RoomUtilizationReport.Any())
+    {
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="card-title">Room Utilization Details</h2>
+                    <a href="?handler=ExportExcel&StartDate=@Model.StartDate.ToString("yyyy-MM-dd")&EndDate=@Model.EndDate.ToString("yyyy-MM-dd")" 
+                       class="btn btn-sm btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export CSV
+                    </a>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+                                <th>Location</th>
+                                <th>Capacity</th>
+                                <th>Total Bookings</th>
+                                <th>Completed</th>
+                                <th>Cancelled</th>
+                                <th>Hours Booked</th>
+                                <th>Utilization Rate</th>
+                                <th>Avg Occupancy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RoomUtilizationReport)
+                            {
+                                <tr>
+                                    <td class="font-semibold">@item.RoomName</td>
+                                    <td>@item.Location</td>
+                                    <td>@item.Capacity</td>
+                                    <td>@item.TotalBookings</td>
+                                    <td><span class="badge badge-success">@item.CompletedMeetings</span></td>
+                                    <td><span class="badge badge-error">@item.CancelledMeetings</span></td>
+                                    <td>@item.TotalHoursBooked hrs</td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <progress class="progress progress-primary w-20" value="@item.UtilizationRate" max="100"></progress>
+                                            <span class="text-sm">@item.UtilizationRate.ToString("F1")%</span>
+                                        </div>
+                                    </td>
+                                    <td>@item.AverageOccupancy.ToString("F1")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="card bg-base-200">
+                        <div class="card-body">
+                            <h3 class="card-title text-lg">Top Utilized Rooms</h3>
+                            <div class="space-y-2">
+                                @foreach (var room in Model.RoomUtilizationReport.OrderByDescending(r => r.UtilizationRate).Take(5))
+                                {
+                                    <div class="flex justify-between items-center">
+                                        <span>@room.RoomName</span>
+                                        <span class="badge badge-primary">@room.UtilizationRate.ToString("F1")%</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-base-200">
+                        <div class="card-body">
+                            <h3 class="card-title text-lg">Summary Statistics</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>Total Rooms:</span>
+                                    <span class="font-semibold">@Model.RoomUtilizationReport.Count()</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Total Bookings:</span>
+                                    <span class="font-semibold">@Model.RoomUtilizationReport.Sum(r => r.TotalBookings)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Total Hours:</span>
+                                    <span class="font-semibold">@Model.RoomUtilizationReport.Sum(r => r.TotalHoursBooked) hrs</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Avg Utilization:</span>
+                                    <span class="font-semibold">@Model.RoomUtilizationReport.Average(r => r.UtilizationRate).ToString("F1")%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model="@("No room utilization data found for the selected period.")" />
+    }
+</div>

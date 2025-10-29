@@ -81,9 +81,11 @@
                         <span>Reports</span>
                     </summary>
                     <ul>
+                        <li><a asp-page="/Reports/Index">Overview</a></li>
                         <li><a asp-page="/Reports/Attendance">Attendance</a></li>
                         <li><a asp-page="/Reports/RoomUtilization">Room Utilization</a></li>
                         <li><a asp-page="/Reports/Statistics">Statistics</a></li>
+                        <li><a asp-page="/Reports/UserActivity">User Activity</a></li>
                     </ul>
                 </details>
             </li>
@@ -94,6 +96,12 @@
             <!-- Administration -->
             <li class="menu-title mt-4">
                 <span>Administration</span>
+            </li>
+            <li>
+                <a asp-page="/Admin/Dashboard" class="flex items-center space-x-3">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Admin Dashboard</span>
+                </a>
             </li>
             <li>
                 <a asp-page="/Admin/Users/Index" class="flex items-center space-x-3">

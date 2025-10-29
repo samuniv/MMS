@@ -1,0 +1,124 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Reports.AttendanceModel
+@{
+    ViewData["Title"] = "Meeting Attendance Report";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Meeting Attendance Report</h1>
+        <a href="/Reports" class="btn btn-ghost">← Back to Reports</a>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Filter Options</h2>
+            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Start Date</span>
+                    </label>
+                    <input type="date" asp-for="StartDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">End Date</span>
+                    </label>
+                    <input type="date" asp-for="EndDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Department (Optional)</span>
+                    </label>
+                    <input type="text" asp-for="Department" class="input input-bordered" placeholder="All Departments" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">&nbsp;</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.AttendanceReport.Any())
+    {
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="card-title">Attendance Details</h2>
+                    <a href="?handler=ExportPdf&StartDate=@Model.StartDate.ToString("yyyy-MM-dd")&EndDate=@Model.EndDate.ToString("yyyy-MM-dd")&Department=@Model.Department" 
+                       class="btn btn-sm btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export HTML
+                    </a>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Meeting</th>
+                                <th>Date</th>
+                                <th>Organizer</th>
+                                <th>Department</th>
+                                <th>Total</th>
+                                <th>Attended</th>
+                                <th>Absent</th>
+                                <th>Pending</th>
+                                <th>Attendance Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.AttendanceReport)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="/Meetings/Details?id=@item.MeetingId" class="link link-primary">
+                                            @item.MeetingTitle
+                                        </a>
+                                    </td>
+                                    <td>@item.ScheduledDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.OrganizerName</td>
+                                    <td>@item.Department</td>
+                                    <td>@item.TotalParticipants</td>
+                                    <td><span class="badge badge-success">@item.AttendedCount</span></td>
+                                    <td><span class="badge badge-error">@item.AbsentCount</span></td>
+                                    <td><span class="badge badge-warning">@item.PendingCount</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <progress class="progress progress-primary w-20" value="@item.AttendanceRate" max="100"></progress>
+                                            <span class="text-sm">@item.AttendanceRate.ToString("F1")%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 stats stats-vertical lg:stats-horizontal shadow">
+                    <div class="stat">
+                        <div class="stat-title">Total Meetings</div>
+                        <div class="stat-value text-primary">@Model.AttendanceReport.Count()</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Average Attendance Rate</div>
+                        <div class="stat-value text-secondary">@Model.AttendanceReport.Average(a => a.AttendanceRate).ToString("F1")%</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Total Participants</div>
+                        <div class="stat-value text-accent">@Model.AttendanceReport.Sum(a => a.TotalParticipants)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model="@("No attendance data found for the selected period.")" />
+    }
+</div>

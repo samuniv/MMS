@@ -44,6 +44,10 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingMinut
     MeetingManagementSystem.Infrastructure.Services.MeetingMinutesService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IActionItemService,
     MeetingManagementSystem.Infrastructure.Services.ActionItemService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IReportService,
+    MeetingManagementSystem.Infrastructure.Services.ReportService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.ISystemMonitoringService,
+    MeetingManagementSystem.Infrastructure.Services.SystemMonitoringService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
@@ -63,6 +67,8 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IMeetingMinut
     MeetingManagementSystem.Infrastructure.Repositories.MeetingMinutesRepository>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IActionItemRepository,
     MeetingManagementSystem.Infrastructure.Repositories.ActionItemRepository>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IAuditLogRepository,
+    MeetingManagementSystem.Infrastructure.Repositories.AuditLogRepository>();
 
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

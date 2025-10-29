@@ -1,0 +1,145 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Reports.UserActivityModel
+@{
+    ViewData["Title"] = "User Activity Report";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">User Activity Report</h1>
+        <a href="/Reports" class="btn btn-ghost">← Back to Reports</a>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Filter Options</h2>
+            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Start Date</span>
+                    </label>
+                    <input type="date" asp-for="StartDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">End Date</span>
+                    </label>
+                    <input type="date" asp-for="EndDate" class="input input-bordered" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Department (Optional)</span>
+                    </label>
+                    <input type="text" asp-for="Department" class="input input-bordered" placeholder="All Departments" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">&nbsp;</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.UserActivityReport.Any())
+    {
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">User Activity Details</h2>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Department</th>
+                                <th>Meetings Organized</th>
+                                <th>Meetings Attended</th>
+                                <th>Action Items Assigned</th>
+                                <th>Action Items Completed</th>
+                                <th>Documents Uploaded</th>
+                                <th>Attendance Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.UserActivityReport.OrderByDescending(u => u.MeetingsOrganized + u.MeetingsAttended))
+                            {
+                                <tr>
+                                    <td class="font-semibold">@user.UserName</td>
+                                    <td>@user.Department</td>
+                                    <td><span class="badge badge-primary">@user.MeetingsOrganized</span></td>
+                                    <td><span class="badge badge-secondary">@user.MeetingsAttended</span></td>
+                                    <td><span class="badge badge-warning">@user.ActionItemsAssigned</span></td>
+                                    <td><span class="badge badge-success">@user.ActionItemsCompleted</span></td>
+                                    <td><span class="badge badge-info">@user.DocumentsUploaded</span></td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <progress class="progress progress-primary w-20" value="@user.AttendanceRate" max="100"></progress>
+                                            <span class="text-sm">@user.AttendanceRate.ToString("F1")%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="card bg-base-200">
+                        <div class="card-body">
+                            <h3 class="card-title text-lg">Top Organizers</h3>
+                            <div class="space-y-2">
+                                @foreach (var user in Model.UserActivityReport.OrderByDescending(u => u.MeetingsOrganized).Take(5))
+                                {
+                                    <div class="flex justify-between items-center">
+                                        <span>@user.UserName</span>
+                                        <span class="badge badge-primary">@user.MeetingsOrganized meetings</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-base-200">
+                        <div class="card-body">
+                            <h3 class="card-title text-lg">Most Active Participants</h3>
+                            <div class="space-y-2">
+                                @foreach (var user in Model.UserActivityReport.OrderByDescending(u => u.MeetingsAttended).Take(5))
+                                {
+                                    <div class="flex justify-between items-center">
+                                        <span>@user.UserName</span>
+                                        <span class="badge badge-secondary">@user.MeetingsAttended meetings</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 stats stats-vertical lg:stats-horizontal shadow">
+                    <div class="stat">
+                        <div class="stat-title">Active Users</div>
+                        <div class="stat-value text-primary">@Model.UserActivityReport.Count()</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Total Meetings Organized</div>
+                        <div class="stat-value text-secondary">@Model.UserActivityReport.Sum(u => u.MeetingsOrganized)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Total Action Items</div>
+                        <div class="stat-value text-accent">@Model.UserActivityReport.Sum(u => u.ActionItemsAssigned)</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Avg Attendance Rate</div>
+                        <div class="stat-value text-info">@Model.UserActivityReport.Average(u => u.AttendanceRate).ToString("F1")%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model="@("No user activity data found for the selected period.")" />
+    }
+</div>

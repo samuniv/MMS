@@ -1,0 +1,188 @@
+@page
+@model MeetingManagementSystem.Web.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">System Dashboard</h1>
+
+    <!-- System Status Alert -->
+    @if (Model.SystemHealth.SystemStatus == "Warning")
+    {
+        <div class="alert alert-warning mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>System Warning: @Model.SystemHealth.OverdueActionItems overdue action items require attention.</span>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>System Status: All systems operational</span>
+        </div>
+    }
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <div class="stat-title">Total Users</div>
+                <div class="stat-value text-primary">@Model.SystemHealth.TotalUsers</div>
+                <div class="stat-desc">@Model.SystemHealth.ActiveUsers active</div>
+            </div>
+        </div>
+
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="stat-title">Total Meetings</div>
+                <div class="stat-value text-secondary">@Model.SystemHealth.TotalMeetings</div>
+                <div class="stat-desc">@Model.SystemHealth.UpcomingMeetings upcoming</div>
+            </div>
+        </div>
+
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div class="stat-title">Meeting Rooms</div>
+                <div class="stat-value text-accent">@Model.SystemHealth.TotalMeetingRooms</div>
+                <div class="stat-desc">@Model.SystemHealth.ActiveRooms active</div>
+            </div>
+        </div>
+
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-figure text-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div class="stat-title">Documents</div>
+                <div class="stat-value text-info">@Model.SystemHealth.TotalDocuments</div>
+                <div class="stat-desc">@Model.SystemHealth.TotalDocumentSizeMB MB total</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Items Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Action Items Status</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span>Pending/In Progress</span>
+                        <span class="badge badge-lg badge-warning">@Model.SystemHealth.PendingActionItems</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Overdue</span>
+                        <span class="badge badge-lg badge-error">@Model.SystemHealth.OverdueActionItems</span>
+                    </div>
+                </div>
+                <div class="card-actions justify-end mt-4">
+                    <a href="/ActionItems/Index" class="btn btn-sm btn-primary">View All Action Items</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Recent Activity (Last 7 Days)</h2>
+                <div class="space-y-2">
+                    @foreach (var activity in Model.SystemHealth.RecentActivity)
+                    {
+                        <div class="flex justify-between items-center">
+                            <span>@activity.Key</span>
+                            <span class="badge badge-primary">@activity.Value</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Audit Logs -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">Recent Audit Logs</h2>
+                <a href="/Admin/AuditLogs" class="btn btn-sm btn-outline">View All Logs</a>
+            </div>
+
+            @if (Model.RecentAuditLogs.Any())
+            {
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Entity</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.RecentAuditLogs)
+                            {
+                                <tr>
+                                    <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td>@log.UserName</td>
+                                    <td><span class="badge badge-primary">@log.Action</span></td>
+                                    <td>@log.EntityType #@log.EntityId</td>
+                                    <td class="text-sm text-gray-500">@log.IpAddress</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-center text-gray-500 py-4">No recent audit logs</p>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <a href="/Admin/Users/Index" class="card bg-primary text-primary-content hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title">User Management</h3>
+                <p>Manage user accounts and roles</p>
+            </div>
+        </a>
+
+        <a href="/Rooms/Manage" class="card bg-secondary text-secondary-content hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title">Room Management</h3>
+                <p>Configure meeting rooms</p>
+            </div>
+        </a>
+
+        <a href="/Reports/Index" class="card bg-accent text-accent-content hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title">Reports</h3>
+                <p>View system reports and analytics</p>
+            </div>
+        </a>
+    </div>
+</div>
