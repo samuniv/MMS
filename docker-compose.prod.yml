@@ -1,0 +1,127 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: meetingmanagement_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-meetingmanagement}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backups:/backups
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - meeting-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-meetingmanagement}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    image: meetingmanagement:${APP_VERSION:-latest}
+    container_name: meetingmanagement_app_prod
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${POSTGRES_DB:-meetingmanagement};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};SSL Mode=Prefer;Trust Server Certificate=true
+      - EmailSettings__SmtpServer=${SMTP_SERVER:?SMTP_SERVER is required}
+      - EmailSettings__SmtpPort=${SMTP_PORT:-587}
+      - EmailSettings__EnableSsl=${SMTP_ENABLE_SSL:-true}
+      - EmailSettings__Username=${SMTP_USERNAME:?SMTP_USERNAME is required}
+      - EmailSettings__Password=${SMTP_PASSWORD:?SMTP_PASSWORD is required}
+      - EmailSettings__FromAddress=${SMTP_FROM_ADDRESS:-meetings@gov.np}
+      - EmailSettings__FromName=${SMTP_FROM_NAME:-Meeting Management System}
+      - DocumentSettings__UploadPath=/app/uploads
+      - Serilog__MinimumLevel__Default=Information
+      - Serilog__MinimumLevel__Override__Microsoft=Warning
+      - Serilog__MinimumLevel__Override__System=Warning
+    networks:
+      - meeting-network
+    volumes:
+      - app_logs:/app/logs
+      - app_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  backup:
+    image: postgres:16-alpine
+    container_name: meetingmanagement_backup
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-meetingmanagement}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - meeting-network
+    entrypoint: ["/bin/sh", "/backup.sh"]
+    profiles:
+      - backup
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_backups:
+    driver: local
+  app_logs:
+    driver: local
+  app_uploads:
+    driver: local
+
+networks:
+  meeting-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

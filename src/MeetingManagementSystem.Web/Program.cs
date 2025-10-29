@@ -71,6 +71,8 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IAuditService
 // Register helper services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<MeetingManagementSystem.Web.Services.AuditContextService>();
+builder.Services.AddSingleton<MeetingManagementSystem.Infrastructure.Services.ICacheService,
+    MeetingManagementSystem.Infrastructure.Services.CacheService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
@@ -93,9 +95,52 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IActionItemRe
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IAuditLogRepository,
     MeetingManagementSystem.Infrastructure.Repositories.AuditLogRepository>();
 
-// Add Entity Framework
+// Add Memory Cache
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 1024; // Limit cache size
+    options.CompactionPercentage = 0.25; // Compact 25% when limit reached
+});
+
+// Add Response Caching
+builder.Services.AddResponseCaching();
+
+// Add Response Compression
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+});
+
+// Add Entity Framework with performance optimizations
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions =>
+    {
+        // Enable retry on failure for transient errors
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null);
+        
+        // Command timeout
+        npgsqlOptions.CommandTimeout(30);
+        
+        // Enable query splitting for better performance with collections
+        npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+    });
+    
+    // Enable sensitive data logging only in development
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+    
+    // Configure query tracking behavior for better performance
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+});
 
 // Add Identity with enhanced security configuration
 builder.Services.AddIdentity<User, IdentityRole<int>>(options => 
@@ -175,13 +220,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Add response compression
+app.UseResponseCompression();
+
+// Add response caching
+app.UseResponseCaching();
+
 // Add security headers
 app.UseSecurityHeaders();
 
 // Add rate limiting
 app.UseRateLimiting();
 
-app.UseStaticFiles();
+// Configure static files with caching
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Cache static files for 7 days
+        const int durationInSeconds = 60 * 60 * 24 * 7;
+        ctx.Context.Response.Headers.Append("Cache-Control", $"public,max-age={durationInSeconds}");
+    }
+});
 
 app.UseRouting();
 

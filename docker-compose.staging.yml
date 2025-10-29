@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: meetingmanagement_postgres_staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-meetingmanagement_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - meeting-network-staging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    image: meetingmanagement:staging
+    container_name: meetingmanagement_app_staging
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-5001}:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${POSTGRES_DB:-meetingmanagement_staging};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      - EmailSettings__SmtpServer=${SMTP_SERVER:-mailhog}
+      - EmailSettings__SmtpPort=${SMTP_PORT:-1025}
+      - EmailSettings__EnableSsl=${SMTP_ENABLE_SSL:-false}
+      - EmailSettings__Username=${SMTP_USERNAME:-}
+      - EmailSettings__Password=${SMTP_PASSWORD:-}
+      - EmailSettings__FromAddress=${SMTP_FROM_ADDRESS:-meetings-staging@gov.np}
+      - Serilog__MinimumLevel__Default=Debug
+    networks:
+      - meeting-network-staging
+    volumes:
+      - staging_logs:/app/logs
+      - staging_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: meetingmanagement_mailhog_staging
+    ports:
+      - "1026:1025"  # SMTP port
+      - "8026:8025"  # Web UI port
+    networks:
+      - meeting-network-staging
+
+volumes:
+  postgres_staging_data:
+    driver: local
+  staging_logs:
+    driver: local
+  staging_uploads:
+    driver: local
+
+networks:
+  meeting-network-staging:
+    driver: bridge

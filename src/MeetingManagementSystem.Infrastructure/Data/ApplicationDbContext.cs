@@ -44,9 +44,18 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
                 .HasForeignKey(e => e.MeetingRoomId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // PostgreSQL specific indexes
+            // PostgreSQL specific indexes for performance
             entity.HasIndex(e => new { e.ScheduledDate, e.StartTime })
                 .HasDatabaseName("IX_Meeting_DateTime");
+            
+            entity.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_Meeting_Status");
+            
+            entity.HasIndex(e => e.OrganizerId)
+                .HasDatabaseName("IX_Meeting_Organizer");
+            
+            entity.HasIndex(e => e.MeetingRoomId)
+                .HasDatabaseName("IX_Meeting_Room");
         });
 
         // Configure User entity
@@ -61,6 +70,12 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             entity.HasIndex(e => e.Email)
                 .IsUnique()
                 .HasDatabaseName("IX_User_Email");
+            
+            entity.HasIndex(e => e.Department)
+                .HasDatabaseName("IX_User_Department");
+            
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("IX_User_IsActive");
         });
 
         // Configure MeetingRoom entity
@@ -70,6 +85,9 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Location).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Equipment).HasMaxLength(500);
+            
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("IX_MeetingRoom_IsActive");
         });
 
         // Configure MeetingParticipant entity

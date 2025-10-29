@@ -380,3 +380,19 @@ uploads/
 .env.local
 .env.development
 .env.production
+.env.staging
+
+# Backup files
+backups/
+*.sql.gz
+*.backup
+
+# SSL/TLS certificates
+*.crt
+*.key
+*.pem
+*.pfx
+
+# Production secrets
+secrets/
+*.secret
