@@ -10,7 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="9.0.4" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
@@ -19,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MeetingManagementSystem.Core\MeetingManagementSystem.Core.csproj" />
     <ProjectReference Include="..\MeetingManagementSystem.Infrastructure\MeetingManagementSystem.Infrastructure.csproj" />
+    <ProjectReference Include="..\MeetingManagementSystem.ServiceDefaults\MeetingManagementSystem.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

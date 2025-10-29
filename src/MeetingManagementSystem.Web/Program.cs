@@ -14,6 +14,9 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Aspire ServiceDefaults (OpenTelemetry, health checks, service discovery)
+builder.AddServiceDefaults();
+
 // Add Serilog
 builder.Host.UseSerilog();
 
@@ -119,7 +122,10 @@ builder.Services.AddResponseCompression(options =>
 // Add Entity Framework with performance optimizations
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions =>
+    var connectionString = builder.Configuration.GetConnectionString("meetingmanagement") 
+        ?? builder.Configuration.GetConnectionString("DefaultConnection");
+    
+    options.UseNpgsql(connectionString, npgsqlOptions =>
     {
         // Enable retry on failure for transient errors
         npgsqlOptions.EnableRetryOnFailure(
@@ -144,6 +150,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     // Configure query tracking behavior for better performance
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
 });
+
+// Add health checks for database
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database");
 
 // Add Identity with enhanced security configuration
 builder.Services.AddIdentity<User, IdentityRole<int>>(options => 
@@ -255,6 +265,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+// Map Aspire default endpoints (health checks)
+app.MapDefaultEndpoints();
 
 // Initialize database and seed data
 using (var scope = app.Services.CreateScope())
