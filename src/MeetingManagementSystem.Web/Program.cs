@@ -122,9 +122,32 @@ builder.Services.AddResponseCompression(options =>
 // Add Entity Framework with performance optimizations
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("meetingmanagement") 
-        ?? builder.Configuration.GetConnectionString("DefaultConnection");
-    
+    // Try to get connection string in order of preference:
+    // 1. From Aspire reference (when running via AppHost)
+    // 2. From appsettings
+    var connectionString = builder.Configuration.GetConnectionString("meetingmanagement");
+
+    // If still null, try the default connection
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    }
+
+    // Log which connection string is being used
+    if (builder.Environment.IsDevelopment())
+    {
+        var maskedConnectionString = string.IsNullOrEmpty(connectionString)
+            ? "NULL"
+            : System.Text.RegularExpressions.Regex.Replace(connectionString, @"Password=[^;]*", "Password=***");
+        Console.WriteLine($"Using connection string: {maskedConnectionString}");
+    }
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException(
+            "No database connection string found. Please ensure 'meetingmanagement' or 'DefaultConnection' is configured in appsettings.json or via Aspire AppHost.");
+    }
+
     options.UseNpgsql(connectionString, npgsqlOptions =>
     {
         // Enable retry on failure for transient errors
@@ -232,9 +255,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 // Add response compression
 app.UseResponseCompression();
