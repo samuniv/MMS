@@ -11,6 +11,12 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     {
     }
 
+    static ApplicationDbContext()
+    {
+        // Configure Npgsql to use DateTime with UTC Kind
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
     public DbSet<Meeting> Meetings { get; set; }
     public DbSet<MeetingRoom> MeetingRooms { get; set; }
     public DbSet<MeetingParticipant> MeetingParticipants { get; set; }

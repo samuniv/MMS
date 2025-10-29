@@ -140,6 +140,11 @@
     }
     else
     {
-        <partial name="_EmptyState" model="@("No user activity data found for the selected period.")" />
+        <partial name="_EmptyState" model="@(new MeetingManagementSystem.Web.Models.EmptyStateModel 
+        { 
+            Icon = "fas fa-user-clock",
+            Title = "No User Activity",
+            Message = "No user activity data found for the selected period. Try adjusting your filter criteria."
+        })" />
     }
 </div>

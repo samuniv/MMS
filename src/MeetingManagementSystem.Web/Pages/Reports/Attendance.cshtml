@@ -119,6 +119,11 @@
     }
     else
     {
-        <partial name="_EmptyState" model="@("No attendance data found for the selected period.")" />
+        <partial name="_EmptyState" model="@(new MeetingManagementSystem.Web.Models.EmptyStateModel 
+        { 
+            Icon = "fas fa-chart-bar",
+            Title = "No Attendance Data",
+            Message = "No attendance data found for the selected period. Try adjusting your filter criteria."
+        })" />
     }
 </div>

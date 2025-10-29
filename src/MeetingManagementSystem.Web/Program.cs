@@ -30,7 +30,10 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-CSRF-TOKEN";
     options.Cookie.Name = "X-CSRF-TOKEN";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    // Use secure cookies only in production or when HTTPS is available
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
@@ -170,6 +173,9 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";

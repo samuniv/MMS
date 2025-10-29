@@ -150,6 +150,11 @@
     }
     else
     {
-        <partial name="_EmptyState" model="@("No audit logs found for the selected criteria.")" />
+        <partial name="_EmptyState" model="@(new MeetingManagementSystem.Web.Models.EmptyStateModel 
+        { 
+            Icon = "fas fa-clipboard-list",
+            Title = "No Audit Logs",
+            Message = "No audit logs found for the selected criteria. Try adjusting your filters."
+        })" />
     }
 </div>

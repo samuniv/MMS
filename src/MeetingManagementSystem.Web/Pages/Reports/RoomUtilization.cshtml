@@ -135,6 +135,11 @@
     }
     else
     {
-        <partial name="_EmptyState" model="@("No room utilization data found for the selected period.")" />
+        <partial name="_EmptyState" model="@(new MeetingManagementSystem.Web.Models.EmptyStateModel 
+        { 
+            Icon = "fas fa-door-open",
+            Title = "No Room Utilization Data",
+            Message = "No room utilization data found for the selected period. Try adjusting your filter criteria."
+        })" />
     }
 </div>
