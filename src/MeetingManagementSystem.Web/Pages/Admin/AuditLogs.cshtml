@@ -13,7 +13,7 @@
     <div class="card bg-base-100 shadow-xl mb-6">
         <div class="card-body">
             <h2 class="card-title">Filter Logs</h2>
-            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text">Start Date</span>
@@ -28,15 +28,40 @@
                 </div>
                 <div class="form-control">
                     <label class="label">
-                        <span class="label-text">User ID (Optional)</span>
+                        <span class="label-text">User ID</span>
                     </label>
                     <input type="number" asp-for="UserId" class="input input-bordered" placeholder="All Users" />
                 </div>
                 <div class="form-control">
                     <label class="label">
+                        <span class="label-text">Entity Type</span>
+                    </label>
+                    <select asp-for="EntityType" class="select select-bordered">
+                        <option value="">All Types</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="User">User</option>
+                        <option value="MeetingRoom">Meeting Room</option>
+                        <option value="MeetingDocument">Document</option>
+                        <option value="ActionItem">Action Item</option>
+                        <option value="MeetingMinutes">Minutes</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Action</span>
+                    </label>
+                    <select asp-for="Action" class="select select-bordered">
+                        <option value="">All Actions</option>
+                        <option value="Create">Create</option>
+                        <option value="Update">Update</option>
+                        <option value="Delete">Delete</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
                         <span class="label-text">&nbsp;</span>
                     </label>
-                    <button type="submit" class="btn btn-primary">Filter Logs</button>
+                    <button type="submit" class="btn btn-primary w-full">Filter Logs</button>
                 </div>
             </form>
         </div>

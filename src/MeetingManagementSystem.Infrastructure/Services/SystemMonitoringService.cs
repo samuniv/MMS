@@ -109,6 +109,45 @@ public class SystemMonitoringService : ISystemMonitoringService
         });
     }
 
+    public async Task<IEnumerable<AuditLogDto>> GetFilteredAuditLogsAsync(
+        string? entityType = null,
+        int? userId = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string? action = null)
+    {
+        var query = _context.AuditLogs.Include(l => l.User).AsQueryable();
+
+        if (!string.IsNullOrEmpty(entityType))
+            query = query.Where(l => l.EntityType == entityType);
+
+        if (userId.HasValue)
+            query = query.Where(l => l.UserId == userId.Value);
+
+        if (startDate.HasValue)
+            query = query.Where(l => l.Timestamp >= startDate.Value);
+
+        if (endDate.HasValue)
+            query = query.Where(l => l.Timestamp <= endDate.Value.AddDays(1));
+
+        if (!string.IsNullOrEmpty(action))
+            query = query.Where(l => l.Action == action);
+
+        var logs = await query.OrderByDescending(l => l.Timestamp).Take(500).ToListAsync();
+
+        return logs.Select(l => new AuditLogDto
+        {
+            Id = l.Id,
+            Action = l.Action,
+            EntityType = l.EntityType,
+            EntityId = l.EntityId,
+            UserName = $"{l.User.FirstName} {l.User.LastName}",
+            Timestamp = l.Timestamp,
+            Changes = l.Changes,
+            IpAddress = l.IpAddress
+        });
+    }
+
     public async Task LogUserActionAsync(string action, string entityType, int entityId, int userId, string changes, string ipAddress)
     {
         await _auditLogRepository.LogActionAsync(action, entityType, entityId, userId, changes, ipAddress);

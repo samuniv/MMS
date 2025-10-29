@@ -16,6 +16,7 @@ public class MeetingServiceTests
     private readonly Mock<IMeetingRoomRepository> _roomRepositoryMock;
     private readonly Mock<IReminderSchedulerService> _reminderSchedulerMock;
     private readonly Mock<INotificationService> _notificationServiceMock;
+    private readonly Mock<IAuditService> _auditServiceMock;
     private readonly Mock<ILogger<MeetingService>> _loggerMock;
     private readonly MeetingService _meetingService;
 
@@ -26,6 +27,7 @@ public class MeetingServiceTests
         _roomRepositoryMock = new Mock<IMeetingRoomRepository>();
         _reminderSchedulerMock = new Mock<IReminderSchedulerService>();
         _notificationServiceMock = new Mock<INotificationService>();
+        _auditServiceMock = new Mock<IAuditService>();
         _loggerMock = new Mock<ILogger<MeetingService>>();
 
         _meetingService = new MeetingService(
@@ -34,6 +36,7 @@ public class MeetingServiceTests
             _roomRepositoryMock.Object,
             _reminderSchedulerMock.Object,
             _notificationServiceMock.Object,
+            _auditServiceMock.Object,
             _loggerMock.Object
         );
     }

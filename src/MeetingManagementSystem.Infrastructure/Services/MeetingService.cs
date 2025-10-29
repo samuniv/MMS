@@ -14,6 +14,7 @@ public class MeetingService : IMeetingService
     private readonly IMeetingRoomRepository _roomRepository;
     private readonly IReminderSchedulerService _reminderScheduler;
     private readonly INotificationService _notificationService;
+    private readonly IAuditService _auditService;
     private readonly ILogger<MeetingService> _logger;
 
     public MeetingService(
@@ -22,6 +23,7 @@ public class MeetingService : IMeetingService
         IMeetingRoomRepository roomRepository,
         IReminderSchedulerService reminderScheduler,
         INotificationService notificationService,
+        IAuditService auditService,
         ILogger<MeetingService> logger)
     {
         _meetingRepository = meetingRepository;
@@ -29,6 +31,7 @@ public class MeetingService : IMeetingService
         _roomRepository = roomRepository;
         _reminderScheduler = reminderScheduler;
         _notificationService = notificationService;
+        _auditService = auditService;
         _logger = logger;
     }
 

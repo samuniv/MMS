@@ -3,6 +3,7 @@ using MeetingManagementSystem.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using MeetingManagementSystem.Core.Entities;
 using MeetingManagementSystem.Core.Constants;
+using MeetingManagementSystem.Web.Middleware;
 using Serilog;
 
 // Configure Serilog
@@ -17,7 +18,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    // Enable antiforgery token validation for all Razor Pages
+    options.Conventions.ConfigureFilter(new Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryTokenAttribute());
+});
+
+// Add antiforgery services with enhanced security
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.Cookie.Name = "X-CSRF-TOKEN";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
 
 // Configure Email Settings
 builder.Services.Configure<MeetingManagementSystem.Core.DTOs.EmailSettings>(
@@ -50,6 +65,12 @@ builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.ISystemMonito
     MeetingManagementSystem.Infrastructure.Services.SystemMonitoringService>();
 builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.INotificationPreferenceService,
     MeetingManagementSystem.Infrastructure.Services.NotificationPreferenceService>();
+builder.Services.AddScoped<MeetingManagementSystem.Core.Interfaces.IAuditService,
+    MeetingManagementSystem.Infrastructure.Services.AuditService>();
+
+// Register helper services
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<MeetingManagementSystem.Web.Services.AuditContextService>();
 
 // Register background services
 builder.Services.AddHostedService<MeetingManagementSystem.Web.Services.ReminderBackgroundService>();
@@ -153,6 +174,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add security headers
+app.UseSecurityHeaders();
+
+// Add rate limiting
+app.UseRateLimiting();
+
 app.UseStaticFiles();
 
 app.UseRouting();

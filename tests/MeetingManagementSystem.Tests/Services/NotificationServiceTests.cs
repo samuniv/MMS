@@ -11,12 +11,14 @@ namespace MeetingManagementSystem.Tests.Services;
 public class NotificationServiceTests
 {
     private readonly Mock<ILogger<NotificationService>> _loggerMock;
+    private readonly Mock<MeetingManagementSystem.Core.Interfaces.INotificationPreferenceService> _preferenceServiceMock;
     private readonly NotificationService _notificationService;
     private readonly EmailSettings _emailSettings;
 
     public NotificationServiceTests()
     {
         _loggerMock = new Mock<ILogger<NotificationService>>();
+        _preferenceServiceMock = new Mock<MeetingManagementSystem.Core.Interfaces.INotificationPreferenceService>();
         
         _emailSettings = new EmailSettings
         {
@@ -30,7 +32,7 @@ public class NotificationServiceTests
         };
 
         var emailSettingsOptions = Options.Create(_emailSettings);
-        _notificationService = new NotificationService(emailSettingsOptions, _loggerMock.Object);
+        _notificationService = new NotificationService(emailSettingsOptions, _loggerMock.Object, _preferenceServiceMock.Object);
     }
 
     [Fact]

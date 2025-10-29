@@ -16,17 +16,23 @@ public class CreateModel : PageModel
     private readonly IMeetingService _meetingService;
     private readonly IRoomService _roomService;
     private readonly UserManager<User> _userManager;
+    private readonly IAuditService _auditService;
+    private readonly Services.AuditContextService _auditContext;
     private readonly ILogger<CreateModel> _logger;
 
     public CreateModel(
         IMeetingService meetingService,
         IRoomService roomService,
         UserManager<User> userManager,
+        IAuditService auditService,
+        Services.AuditContextService auditContext,
         ILogger<CreateModel> logger)
     {
         _meetingService = meetingService;
         _roomService = roomService;
         _userManager = userManager;
+        _auditService = auditService;
+        _auditContext = auditContext;
         _logger = logger;
     }
 
@@ -131,6 +137,9 @@ public class CreateModel : PageModel
             };
 
             var meeting = await _meetingService.CreateMeetingAsync(dto);
+            
+            // Log audit trail
+            await _auditService.LogCreateAsync(meeting, _auditContext.GetCurrentUserId(), _auditContext.GetIpAddress());
             
             _logger.LogInformation("Meeting {MeetingId} created by user {UserId}", meeting.Id, userId);
             TempData["SuccessMessage"] = "Meeting scheduled successfully!";

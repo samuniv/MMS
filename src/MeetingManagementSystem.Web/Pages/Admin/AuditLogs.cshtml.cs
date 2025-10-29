@@ -26,17 +26,20 @@ public class AuditLogsModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? UserId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? EntityType { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Action { get; set; }
+
     public IEnumerable<AuditLogDto> AuditLogs { get; set; } = new List<AuditLogDto>();
 
     public async Task OnGetAsync()
     {
-        if (UserId.HasValue)
+        // Use filtered logs if any filter is applied
+        if (UserId.HasValue || !string.IsNullOrEmpty(EntityType) || !string.IsNullOrEmpty(Action) || StartDate.HasValue || EndDate.HasValue)
         {
-            AuditLogs = await _monitoringService.GetAuditLogsByUserAsync(UserId.Value, StartDate, EndDate);
-        }
-        else if (StartDate.HasValue && EndDate.HasValue)
-        {
-            AuditLogs = await _monitoringService.GetAuditLogsByDateRangeAsync(StartDate.Value, EndDate.Value);
+            AuditLogs = await _monitoringService.GetFilteredAuditLogsAsync(EntityType, UserId, StartDate, EndDate, Action);
         }
         else
         {

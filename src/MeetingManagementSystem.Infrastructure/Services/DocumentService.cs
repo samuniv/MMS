@@ -2,6 +2,7 @@ using MeetingManagementSystem.Core.DTOs;
 using MeetingManagementSystem.Core.Entities;
 using MeetingManagementSystem.Core.Exceptions;
 using MeetingManagementSystem.Core.Interfaces;
+using MeetingManagementSystem.Core.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,15 +45,25 @@ public class DocumentService : IDocumentService
             throw new MeetingNotFoundException(meetingId);
         }
 
-        // Validate file
+        // Validate file with basic checks
         if (!await ValidateFileAsync(file))
         {
             throw new InvalidFileException("File validation failed. Check file size and type.");
         }
 
-        // Generate unique filename
-        var fileExtension = Path.GetExtension(file.FileName);
-        var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+        // Enhanced security validation
+        using (var fileStream = file.OpenReadStream())
+        {
+            var securityValidation = await FileSecurityScanner.ValidateFileAsync(fileStream, file.FileName, file.Length);
+            if (!securityValidation.IsValid)
+            {
+                _logger.LogWarning("File security validation failed: {ErrorMessage}", securityValidation.ErrorMessage);
+                throw new InvalidFileException(securityValidation.ErrorMessage);
+            }
+        }
+
+        // Generate safe unique filename
+        var uniqueFileName = FileSecurityScanner.GetSafeFileName(file.FileName);
         var filePath = Path.Combine(_uploadPath, uniqueFileName);
 
         try

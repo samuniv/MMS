@@ -17,17 +17,23 @@ public class EditModel : PageModel
     private readonly IMeetingService _meetingService;
     private readonly IRoomService _roomService;
     private readonly UserManager<User> _userManager;
+    private readonly IAuditService _auditService;
+    private readonly Services.AuditContextService _auditContext;
     private readonly ILogger<EditModel> _logger;
 
     public EditModel(
         IMeetingService meetingService,
         IRoomService roomService,
         UserManager<User> userManager,
+        IAuditService auditService,
+        Services.AuditContextService auditContext,
         ILogger<EditModel> logger)
     {
         _meetingService = meetingService;
         _roomService = roomService;
         _userManager = userManager;
+        _auditService = auditService;
+        _auditContext = auditContext;
         _logger = logger;
     }
 
@@ -173,7 +179,11 @@ public class EditModel : PageModel
                 ParticipantIds = Input.ParticipantIds
             };
 
-            await _meetingService.UpdateMeetingAsync(id, dto);
+            var oldMeeting = meeting;
+            var updatedMeeting = await _meetingService.UpdateMeetingAsync(id, dto);
+            
+            // Log audit trail
+            await _auditService.LogUpdateAsync(oldMeeting, updatedMeeting, _auditContext.GetCurrentUserId(), _auditContext.GetIpAddress());
             
             _logger.LogInformation("Meeting {MeetingId} updated", id);
             TempData["SuccessMessage"] = "Meeting updated successfully!";
