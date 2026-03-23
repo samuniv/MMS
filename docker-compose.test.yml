@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: mms-postgres-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: meetingmanagement_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  mailhog-test:
+    image: mailhog/mailhog:latest
+    container_name: mms-mailhog-test
+    ports:
+      - "1026:1025"  # SMTP port (different from dev to avoid conflicts)
+      - "8026:8025"  # Web UI port (different from dev to avoid conflicts)
+    networks:
+      - test-network
+
+volumes:
+  postgres-test-data:
+    driver: local
+
+networks:
+  test-network:
+    driver: bridge

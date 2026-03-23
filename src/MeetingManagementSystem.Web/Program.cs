@@ -21,11 +21,7 @@ builder.AddServiceDefaults();
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddRazorPages(options =>
-{
-    // Enable antiforgery token validation for all Razor Pages
-    options.Conventions.ConfigureFilter(new Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryTokenAttribute());
-});
+builder.Services.AddRazorPages();
 
 // Add antiforgery services with enhanced security
 builder.Services.AddAntiforgery(options =>
@@ -34,7 +30,9 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.Name = "X-CSRF-TOKEN";
     options.Cookie.HttpOnly = true;
     // Use secure cookies only in production or when HTTPS is available
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+    var isDevelopmentOrTesting = builder.Environment.IsDevelopment() || 
+                                  builder.Environment.EnvironmentName == "Testing";
+    options.Cookie.SecurePolicy = isDevelopmentOrTesting
         ? CookieSecurePolicy.SameAsRequest 
         : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
@@ -206,7 +204,9 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+    var isDevelopmentOrTesting = builder.Environment.IsDevelopment() || 
+                                  builder.Environment.EnvironmentName == "Testing";
+    options.Cookie.SecurePolicy = isDevelopmentOrTesting
         ? CookieSecurePolicy.SameAsRequest 
         : CookieSecurePolicy.Always;
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
@@ -282,6 +282,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseRouting();
+app.UseAntiforgery();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -328,3 +329,6 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// Make Program class accessible to WebApplicationFactory in test projects
+public partial class Program { }

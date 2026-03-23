@@ -72,10 +72,35 @@ MeetingManagementSystem/
 │   ├── MeetingManagementSystem.Web/          # Razor Pages Application
 │   ├── MeetingManagementSystem.Core/         # Business Logic & Entities
 │   └── MeetingManagementSystem.Infrastructure/ # Data Access & External Services
+├── tests/
+│   ├── MeetingManagementSystem.Tests/        # Unit & Integration Tests
+│   └── MeetingManagementSystem.E2ETests/     # End-to-End Tests (Playwright)
 ├── docker-compose.yml                        # Docker Compose configuration
 ├── Dockerfile                               # Application container
 └── README.md
 ```
+
+## Testing
+
+### Running E2E Tests
+
+The application includes comprehensive end-to-end tests using Playwright for .NET:
+
+```powershell
+# Setup (first time only)
+.\run-e2e-tests.ps1 -Action setup
+
+# Run all E2E tests
+.\run-e2e-tests.ps1 -Action run
+
+# Run specific test categories
+.\run-e2e-tests.ps1 -Action run-workflows      # Playwright browser tests
+.\run-e2e-tests.ps1 -Action run-integration    # HTTP integration tests
+.\run-e2e-tests.ps1 -Action run-chromium       # Chromium tests only
+.\run-e2e-tests.ps1 -Action run-firefox        # Firefox tests only
+```
+
+For detailed testing documentation, see [E2E Testing Guide](tests/MeetingManagementSystem.E2ETests/README.md).
 
 ## Configuration
 

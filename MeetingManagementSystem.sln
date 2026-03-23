@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingManagementSystem.App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingManagementSystem.ServiceDefaults", "src\MeetingManagementSystem.ServiceDefaults\MeetingManagementSystem.ServiceDefaults.csproj", "{6723FECB-10D7-461E-BD17-8DD747526935}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingManagementSystem.E2ETests", "tests\MeetingManagementSystem.E2ETests\MeetingManagementSystem.E2ETests.csproj", "{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,18 @@ Global
 		{6723FECB-10D7-461E-BD17-8DD747526935}.Release|x64.Build.0 = Release|Any CPU
 		{6723FECB-10D7-461E-BD17-8DD747526935}.Release|x86.ActiveCfg = Release|Any CPU
 		{6723FECB-10D7-461E-BD17-8DD747526935}.Release|x86.Build.0 = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|x64.Build.0 = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|x64.ActiveCfg = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|x64.Build.0 = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,5 +111,6 @@ Global
 		{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC946} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
 		{E36C64A0-46B8-4DD2-857A-532F80681A7F} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
 		{6723FECB-10D7-461E-BD17-8DD747526935} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}
+		{B2E04144-4EF6-4E86-A2B1-EE8EEF9D9135} = {8BC9CEB8-8B4A-11D0-8D11-00A0C91BC943}
 	EndGlobalSection
 EndGlobal
